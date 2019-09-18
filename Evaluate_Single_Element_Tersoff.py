@@ -24,7 +24,17 @@ def create_fffile(individual):
 #   Calculate the RMSD and cohesive energy of Se2 dimer
 def rmsd_cohesive_se2(*criteria):
     #   Calculate the room mean square displacement and cohesive energy of Se2
-    
+    #   Set up working directory
+    if 'rmsd_cohesive_se2' in os.listdir('.'):
+        pass
+    else:
+        path_tmp = os.join('.', 'rmsd_cohesive_se2')
+        os.mkdir(path_tmp)
+    os.chdir(path_tmp)
+
+    lmp = lammps(cmdargs=['-log','lammps.log'])
+    path_tmp = 
+    lmp.file()
 
 
 
@@ -38,7 +48,7 @@ def evaluate_single_element_Tersoff(individual, criteria_all):
     #   Create a force field file
     create_fffile(ind_all)
 
-    #   Parameters for evaluation
+    #   Set up evaluation
     eval_seq = [rmsd_cohesive_se2, dissociation_se2, rmsd_cohesive_se3,
                 rmsd_cohesive_se6, rmsd_cohesive_se8ring,
                 rmsd_cohesive_se8helix, stability_se2, stability_se6,
@@ -47,7 +57,7 @@ def evaluate_single_element_Tersoff(individual, criteria_all):
     fitness_max = len(eval_seq) * fitness_step
     fitness_current = fitness_max
 
-    #   Start of evaluation
+    #   Start the evaluation
     for i, eval in enumerate(eval_seq):
         #   Error Sum of Squares and whether the current evaluation succeeds
         #   For each evaluation function, if the convergence criteria is met,
