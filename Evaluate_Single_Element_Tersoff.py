@@ -9,18 +9,37 @@ import copy
 
 # Third party imports: lammps
 import numpy as np
-from lammps import lammps
+#from lammps import lammps
 
 # Local library imports
 
 #   Create a Tersoff force field file
-def create_fffile(path_tmp, individual):
+def create_fffile(path_tmp, element_name, individual):
     #   With the input list individual that contains all the force field
-    #   parameters, create a file with all parameters that is read by LAMMPS
-    #   Individual has all the parameters in the following order:
-    #   m (=1), gamma, lambda3, c, d, costheta0,
-    #   n, beta, lambda2, B, R, D, lambda1 and A
-    pass
+    #   parameters, create a file to be read by LAMMPS
+    #   Individual value has all the parameters in the following order:
+    #   [m (=1), gamma, lambda3, c, d, costheta0,
+    #   n, beta, lambda2, B, R, D, lambda1, A]
+    '''
+    input:
+        - element_name - str, name of the element
+        - individual - list, Tersoff parameters of the mentioned element
+    output:
+        - a text file containing parameters
+    '''
+    file_name = os.join(path_tmp, element_name + '.tersoff')
+    with open(file_name, 'w') as output_file:
+        output_file.write('# Tersoff parameters for various elements and mixtures\n' +
+                '# multiple entries can be added to this file, LAMMPS reads the\n' +
+                '# ones it needs these entries are in LAMMPS metal units:\n' +
+                '#   A,B = eV; lambda1,lambda2,lambda3 = 1/Angstroms; R,D = Angstroms\n' +
+                '#   other quantities are unitless\n\n' +
+                '# format of a single entry (one or more lines):\n' +
+                '#   element 1, element 2, element 3,\n' +
+                '#   m, gamma, lambda3, c, d, costheta0, n, beta, lambda2, B, R, D, lambda1, A\n\n' )
+        output_file.write((element_name + ' ')*3)
+        for parameter in individual:
+            output_file.write(str(parameter) + ' ')
 
 #   Calculate the RMSD and cohesive energy of Se2 dimer
 def rmsd_cohesive_se2(path_tmp, *criteria):
@@ -31,12 +50,18 @@ def rmsd_cohesive_se2(path_tmp, *criteria):
         if os.path.isfile(lammps_file_name):
             shutil.copy(lammps_file_name, path_tmp)
 
-    os.chdir(path_tmp)
-    lmp = lammps(cmdargs=['-log','rmsd_cohesive_se2.log'])
-    lmp.file('rmsd_cohesive_se2.in')
+    os.system("mpirun -np 1 lmp_mpi -in " + os.join(path_tmp,
+              'rmsd_cohesive_se2.in')
+             )
+
+    with open(os.join(path_tmp, 'rmsd_cohesive_se2.log'), "r") as output:
+        all_lines = output.readlines()
+        for line in all_lines:
+            
+
     rmsd = lmp.extract_variable('rmsd', 'all', 0)
     cohesive_eng = lmp.get_thermo('pe')
-    os.chdir('..')
+
 
 # The evaluate function
 def evaluate_single_element_Tersoff(individual, criteria_all):
@@ -52,7 +77,7 @@ def evaluate_single_element_Tersoff(individual, criteria_all):
     ind = copy.deepcopy(individual)
     #   ind_all is the complete parameter set
     ind_all = [1] + ind
-    create_fffile(path_eval, ind_all)
+    create_fffile(path_eval, element_name, ind_all)
 
     #   Set up evaluation. eval_seq stores the names of all evaluation
     #   functions
