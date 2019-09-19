@@ -4,6 +4,7 @@
 
 # Standard library imports
 import os
+import shutil
 import copy
 
 # Third party imports: lammps
@@ -13,7 +14,7 @@ from lammps import lammps
 # Local library imports
 
 #   Create a Tersoff force field file
-def create_fffile(individual):
+def create_fffile(path_tmp, individual):
     #   With the input list individual that contains all the force field
     #   parameters, create a file with all parameters that is read by LAMMPS
     #   Individual has all the parameters in the following order:
@@ -22,33 +23,39 @@ def create_fffile(individual):
     pass
 
 #   Calculate the RMSD and cohesive energy of Se2 dimer
-def rmsd_cohesive_se2(*criteria):
+def rmsd_cohesive_se2(path_tmp, *criteria):
     #   Calculate the room mean square displacement and cohesive energy of Se2
-    #   Set up working directory
-    if 'rmsd_cohesive_se2' in os.listdir('.'):
-        pass
-    else:
-        path_tmp = os.join('.', 'rmsd_cohesive_se2')
-        os.mkdir(path_tmp)
+    lammps_file_path = os.join('.', 'lammps_input', 'rmsd_cohesive_se2')
+    for _ in os.listdir(lammps_file_path):
+        lammps_file_name = os.join(lammps_file_path, _)
+        if os.path.isfile(lammps_file_name):
+            shutil.copy(lammps_file_name, path_tmp)
+
     os.chdir(path_tmp)
-
-    lmp = lammps(cmdargs=['-log','lammps.log'])
-    path_tmp = 
-    lmp.file()
-
-
-
+    lmp = lammps(cmdargs=['-log','rmsd_cohesive_se2.log'])
+    lmp.file('rmsd_cohesive_se2.in')
+    rmsd = lmp.extract_variable('rmsd', 'all', 0)
+    cohesive_eng = lmp.get_thermo('pe')
+    os.chdir('..')
 
 # The evaluate function
 def evaluate_single_element_Tersoff(individual, criteria_all):
+    #   Set up working directory
+    path_eval = os.join('.', 'result_single_element')
+    try:
+        'results_single_element' in os.listdir('.')
+    except:
+        os.mkdir(path_eval)
+
+    #   Create a force field file
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
     #   ind_all is the complete parameter set
     ind_all = [1] + ind
-    #   Create a force field file
-    create_fffile(ind_all)
+    create_fffile(path_eval, ind_all)
 
-    #   Set up evaluation
+    #   Set up evaluation. eval_seq stores the names of all evaluation
+    #   functions
     eval_seq = [rmsd_cohesive_se2, dissociation_se2, rmsd_cohesive_se3,
                 rmsd_cohesive_se6, rmsd_cohesive_se8ring,
                 rmsd_cohesive_se8helix, stability_se2, stability_se6,
@@ -66,7 +73,7 @@ def evaluate_single_element_Tersoff(individual, criteria_all):
         #   evaluation stops immediately and the current fitness is returned
         #   If all evaluation functions converge to the criteria, the final
         #   fitness value is returned
-        sse, proceed = eval(*criteria_all[i])
+        sse, proceed = eval(path_eval, *criteria_all[i])
         if proceed:
             fitness_current = fitness_current - fitness_step + sse
             if i == len(eval_seq) - 1:
