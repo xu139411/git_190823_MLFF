@@ -9,7 +9,6 @@ import copy
 
 # Third party imports: lammps
 import numpy as np
-#from lammps import lammps
 
 # Local library imports
 
@@ -27,7 +26,7 @@ def create_fffile(path_tmp, element_name, individual):
     output:
         - a text file containing parameters
     '''
-    file_name = os.join(path_tmp, element_name + '.tersoff')
+    file_name = os.path.join(path_tmp, element_name + '.tersoff')
     with open(file_name, 'w') as output_file:
         output_file.write('# Tersoff parameters for various elements and mixtures\n' +
                 '# multiple entries can be added to this file, LAMMPS reads the\n' +
@@ -44,32 +43,46 @@ def create_fffile(path_tmp, element_name, individual):
 #   Calculate the RMSD and cohesive energy of Se2 dimer
 def rmsd_cohesive_se2(path_tmp, *criteria):
     #   Calculate the room mean square displacement and cohesive energy of Se2
-    lammps_file_path = os.join('.', 'lammps_input', 'rmsd_cohesive_se2')
+    #   From them, calculate the Error sum of squares (SSE).
+    #   Copy files to the result directory
+    lammps_file_path = os.path.join('.', 'lammps_input', 'rmsd_cohesive_se2')
     for _ in os.listdir(lammps_file_path):
-        lammps_file_name = os.join(lammps_file_path, _)
+        lammps_file_name = os.path.join(lammps_file_path, _)
         if os.path.isfile(lammps_file_name):
             shutil.copy(lammps_file_name, path_tmp)
-
-    os.system("mpirun -np 1 lmp_mpi -in " + os.join(path_tmp,
-              'rmsd_cohesive_se2.in')
-             )
-
-    with open(os.join(path_tmp, 'rmsd_cohesive_se2.log'), "r") as output:
+    #   Run LAMMPS
+    os.chdir(path_tmp)
+    os.system("mpirun -np 1 lmp_mpi -log rmsd_cohesive_se2.log -screen none -in rmsd_cohesive_se2.in")
+    os.chdir('..')
+    #   Initialize the values to be False to handle LAMMPS errors
+    rmsd, cohesive_eng = False, False
+    sse_max = 999
+    cohesive_eng_dft = -2.03
+    criteria = [0.02, 0.1]
+    #   Fetch data from log file
+    with open(os.path.join(path_tmp, 'rmsd_cohesive_se2.log'), "r") as output:
         all_lines = output.readlines()
         for line in all_lines:
-            
-
-    rmsd = lmp.extract_variable('rmsd', 'all', 0)
-    cohesive_eng = lmp.get_thermo('pe')
-
+            if 'cohesive energy' in line and 'print' not in line:
+                rmsd = float(line.split()[1])
+                cohesive_eng = float(line.split()[4])
+    #   Return Error sum of squares and whether to proceed
+    if rmsd is False and cohesive_eng is False:
+        return sse_max, False
+    else:
+        sse = min(sse_max, rmsd**2 + (cohesive_eng - cohesive_eng_dft)**2)
+        if rmsd <= criteria[0] and abs(cohesive_eng -cohesive_eng_dft) <= criteria[1]:
+            return sse, True
+        else:
+            return sse, False
 
 # The evaluate function
 def evaluate_single_element_Tersoff(individual, criteria_all):
     #   Set up working directory
-    path_eval = os.join('.', 'result_single_element')
-    try:
-        'results_single_element' in os.listdir('.')
-    except:
+    path_eval = os.path.join(os.path.abspath('.'), 'result_single_element', '')
+    if 'results_single_element' in os.listdir('.'):
+        pass
+    else:
         os.mkdir(path_eval)
 
     #   Create a force field file
