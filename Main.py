@@ -12,14 +12,12 @@ from scoop import futures
 #toolbox.register("map", futures.map) # Stay with scoop
 
 # Local library imports
-from Read_Control import read_control
+from Read_Control_Config import read_control_config
+from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
 
 # Retrieve parameters
-gamma_min, gamma_max, lambda3_min, lambda3_max, c_min, c_max, d_min, d_max,\
-costheta0_min, costheta0_max, n_min, n_max, beta_min, beta_max, lambda2_min,\
-lambda2_max, B_min, B_max, R_min, R_max, D_min, D_max, lambda1_min, lambda1_max,\
-A_min, A_max, ELEMENT, RANDOM_SEED, POP_SIZE, MAX_GENERATION, CXPB,\
-MUTPB = read_control()
+indiv_low, indiv_up, ELEMENT_NUM, ELEMENT_NAME,\
+RANDOM_SEED, POP_SIZE, MAX_GEN, CXPB, MUTPB = read_control_config()
 
 # DEAP setup
 #   Minimize the fitness value
@@ -41,20 +39,19 @@ toolbox = base.Toolbox()
 #   the force field parameters except m. Since the value of m is always
 #   1, it is not included in the individuals, but is added during the
 #   evaluation.
-toolbox.register("attr_gamma", random.uniform, gamma_min, gamma_max)
-toolbox.register("attr_lambda3", random.uniform, lambda3_min, lambda3_max)
-toolbox.register("attr_c", random.uniform, c_min, c_max)
-toolbox.register("attr_d", random.uniform, d_min, d_max)
-toolbox.register("attr_costheta0", random.uniform, costheta0_min,
-                 costheta0_max)
-toolbox.register("attr_n", random.uniform, n_min, n_max)
-toolbox.register("attr_beta", random.uniform, beta_min, beta_max)
-toolbox.register("attr_lambda2", random.uniform, lambda2_min, lambda2_max)
-toolbox.register("attr_B", random.uniform, B_min, B_max)
-toolbox.register("attr_R", random.uniform, R_min, R_max)
-toolbox.register("attr_D", random.uniform, D_min, D_max)
-toolbox.register("attr_lambda1", random.uniform, lambda1_min, lambda1_max)
-toolbox.register("attr_A", random.uniform, A_min, A_max)
+toolbox.register("attr_gamma", random.uniform, indiv_low[0], indiv_up[0])
+toolbox.register("attr_lambda3", random.uniform, indiv_low[1], indiv_up[1])
+toolbox.register("attr_c", random.uniform, indiv_low[2], indiv_up[2])
+toolbox.register("attr_d", random.uniform, indiv_low[3], indiv_up[3])
+toolbox.register("attr_costheta0", random.uniform, indiv_low[4], indiv_up[4])
+toolbox.register("attr_n", random.uniform, indiv_low[5], indiv_up[5])
+toolbox.register("attr_beta", random.uniform, indiv_low[6], indiv_up[6])
+toolbox.register("attr_lambda2", random.uniform, indiv_low[7], indiv_up[7])
+toolbox.register("attr_B", random.uniform, indiv_low[8], indiv_up[8])
+toolbox.register("attr_R", random.uniform, indiv_low[9], indiv_up[9])
+toolbox.register("attr_D", random.uniform, indiv_low[10], indiv_up[10])
+toolbox.register("attr_lambda1", random.uniform, indiv_low[11], indiv_up[11])
+toolbox.register("attr_A", random.uniform, indiv_low[12], indiv_up[12])
 toolbox.register("individual", tools.initCycle, creator.Individual,
                      (toolbox.attr_gamma, toolbox.attr_lambda3,
                       toolbox.attr_c, toolbox.attr_d, toolbox.attr_costheta0,
@@ -64,31 +61,23 @@ toolbox.register("individual", tools.initCycle, creator.Individual,
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 #   Operator registration
-#   Dummy evaluate function
-def evaluate_single_element_Tersoff(individual):
-    return sum(individual),
 #   register the goal / fitness function
-if ELEMENT == "single":
+if ELEMENT_NUM == "single":
     toolbox.register("evaluate", evaluate_single_element_Tersoff)
-elif ELEMENT == "two":
+elif ELEMENT_NUM == "two":
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
-indiv_bounds_low = [gamma_min, lambda3_min, c_min, d_min, costheta0_min, n_min,
-                    beta_min, lambda2_min, B_min, R_min, D_min, lambda1_min,
-                    A_min]
-indiv_bounds_up = [gamma_max, lambda3_max, c_max, d_max, costheta0_max, n_max,
-                    beta_max, lambda2_max, B_max, R_max, D_max, lambda1_max,
-                    A_max]
+
 #   register the crossover operator. Simulated Binary Bounded algorithm
 #   is used with an eta value of 20 and bounds for parameters.
 toolbox.register("mate", tools.cxSimulatedBinaryBounded, eta=20,
-                 low=indiv_bounds_low, up=indiv_bounds_up)
+                 low=indiv_low, up=indiv_up)
 #   register the mutation operator. Polynomial algorithm is used with
 #   an eta value of 20 and bounds for parameters. The probability for
 #   each attribute to be mutated is equal to 1/num_attributes
 toolbox.register("mutate", tools.mutPolynomialBounded, eta=20,
-                 low=indiv_bounds_low, up=indiv_bounds_up,
-                 indpb=1/len(indiv_bounds_low))
+                 low=indiv_low, up=indiv_up,
+                 indpb=1/len(indiv_low))
 #   register the selection operator. Tournament algorithm is used. For
 #   each selection, 3 individuals are chosen, and the best among them is
 #   selected.
