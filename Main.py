@@ -4,13 +4,11 @@
 # Standard library imports
 import random
 import pickle
-
 # Third party imports: Numpy, DEAP and SCOOP
 import numpy as np
 from deap import base, creator, tools
 from scoop import futures
 #toolbox.register("map", futures.map) # Stay with scoop
-
 # Local library imports
 from Read_Control_Config import read_control_config
 from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
@@ -63,7 +61,8 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 #   Operator registration
 #   register the goal / fitness function
 if ELEMENT_NUM == "single":
-    toolbox.register("evaluate", evaluate_single_element_Tersoff)
+    toolbox.register("evaluate", evaluate_single_element_Tersoff,
+                     e_name=ELEMENT_NAME)
 elif ELEMENT_NUM == "two":
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)

@@ -6,10 +6,8 @@
 import os
 import shutil
 import copy
-
 # Third party imports: lammps
 import numpy as np
-
 # Local library imports
 
 #   Create a Tersoff force field file
@@ -77,10 +75,12 @@ def rmsd_cohesive_se2(path_tmp, *criteria):
             return sse, False
 
 # The evaluate function
-def evaluate_single_element_Tersoff(individual, criteria_all):
+def evaluate_single_element_Tersoff(individual, criteria_all,
+                                    element_name=None):
     #   Set up working directory
-    path_eval = os.path.join(os.path.abspath('.'), 'result_single_element', '')
-    if 'results_single_element' in os.listdir('.'):
+    path_eval = os.path.join(os.path.abspath('.'),
+                             'result_single_element_'+element_name, '')
+    if 'results_single_element_' + element_name in os.listdir('.'):
         pass
     else:
         os.mkdir(path_eval)
