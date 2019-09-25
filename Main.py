@@ -13,9 +13,8 @@ from scoop import futures
 from Read_Control_Config import read_control_config
 from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
 
-# Retrieve parameters
-indiv_low, indiv_up, ELEMENT_NUM, ELEMENT_NAME,\
-RANDOM_SEED, POP_SIZE, MAX_GEN, CXPB, MUTPB = read_control_config()
+# Retrieve parameters: list, list, dictionary, dictionary
+indiv_low, indiv_up, parameters_GA, CRITERIA = read_control_config()
 
 # DEAP setup
 #   Minimize the fitness value
@@ -60,10 +59,10 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 #   Operator registration
 #   register the goal / fitness function
-if ELEMENT_NUM == "single":
+if len(parameters_GA['ELEMENT_NAME']) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
-                     e_name=ELEMENT_NAME)
-elif ELEMENT_NUM == "two":
+                     element_name=parameters_GA['ELEMENT_NAME'], criteria=CRITERIA)
+else:
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
 
@@ -98,10 +97,10 @@ def main(checkpoint=None):
         random.setstate(cp["rndstate"])
     else:
         #   Start a new evolution with a specified random_seed
-        random.seed(RANDOM_SEED)
+        random.seed(parameters_GA['RANDOM_SEED'])
         #   Create an initial population of POP_SIZE individuals (where)
         #   each individual is a list of 13 force field parameters
-        pop = toolbox.population(n=POP_SIZE)
+        pop = toolbox.population(n=parameters_GA['POP_SIZE'])
 
         print("START OF EVALUATION")
         #   Evaluate the entire population
@@ -116,7 +115,7 @@ def main(checkpoint=None):
         g = 0
 
         #   Begin the evolution
-        while g < MAX_GENERATION:
+        while g < parameters_GA['MAX_GENERATION']:
             #   A new generation
             g = g + 1
             print("-- GENERATION {0}".format(g))
@@ -128,14 +127,14 @@ def main(checkpoint=None):
             #   Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 #   Cross two individuals with probability CXPB
-                if random.random() < CXPB:
+                if random.random() < parameters_GA['CXPB']:
                     toolbox.mate(child1, child2)
                     #   Fitness values of the children must be recalculated
                     del child1.fitness.values
                     del child2.fitness.values
             for mutant in offspring:
                 #   Mutate an individual with probability MUTPB
-                if random.random() < MUTPB:
+                if random.random() < parameters_GA['MUTPB']:
                     toolbox.mutate(mutant)
                     del mutant.fitness.values
             #   Evaluate the individuals with invalid fitnesses

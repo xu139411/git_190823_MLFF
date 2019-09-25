@@ -16,14 +16,14 @@ timestep        0.001
 
 #   Retrieve atom information
 box             tilt large
-read_data       se2.data
+read_data       Se2.data
 #   Atom notation
 #1 Se
 
 #==================================================
 #   Force field definition
 pair_style      tersoff
-pair_coeff      * * se.tersoff Se
+pair_coeff      * * Se.tersoff Se
 #==================================================
 #Variables are defined here
 variable        MinimizeThermo equal 1
@@ -52,4 +52,4 @@ minimize        1e-6 1e-6 ${MinimizeStep} ${MinimizeStep}
 #run             ${NVTStep}
 #unfix           f1
 #undump          d1
-print           "RMSD ${rmsd} cohesive energy ${cohesive}"
+print           "Predictions ${rmsd} ${cohesive}"

@@ -35,15 +35,21 @@ def read_control_config():
     A_max = float(config.get('FF Parameters', 'A').split()[1])
 
     #   Parameters for GA work flow
-    ELEMENT_NUM = config.get('Parameters for GA Work Flow', 'ELEMENT_NUM')
-    ELEMENT_NAME = config.get('Parameters for GA Work Flow', 'ELEMENT_NAME')
+    ELEMENT_NAME = config.get('Parameters for GA Work Flow', 'ELEMENT_NAME').split()
     RANDOM_SEED = int(config.get('Parameters for GA Work Flow', 'RANDOM_SEED'))
     POP_SIZE = int(config.get('Parameters for GA Work Flow', 'POP_SIZE'))
     MAX_GEN = int(config.get('Parameters for GA Work Flow', 'MAX_GENERATION'))
     CXPB = float(config.get('Parameters for GA Work Flow', 'CXPB'))
     MUTPB = float(config.get('Parameters for GA Work Flow', 'MUTPB'))
 
-    #   Parameters for Evaluation Functions
+    #   Convergence criteria for evaluation
+    RMSD_COHESIVE_SE2 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE2').split()))
+    DISSOCIATION_SE2 = [float(config.get('Convergence criteria Se', 'DISSOCIATION_SE2'))]
+    RMSD_COHESIVE_SE3 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE3').split()))
+    RMSD_COHESIVE_SE6 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE6').split()))
+    RMSD_COHESIVE_SE8_RING = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_RING').split()))
+    RMSD_COHESIVE_SE8_HELIX = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_HELIX').split()))
+    RMSD_COHESIVE_SE8_LADDER = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_LADDER').split()))
 
     indiv_low = [gamma_min, lambda3_min, c_min, d_min, costheta0_min,
                  n_min, beta_min, lambda2_min, B_min, R_min, D_min,
@@ -51,5 +57,18 @@ def read_control_config():
     indiv_up = [gamma_max, lambda3_max, c_max, d_max, costheta0_max,
                 n_max, beta_max, lambda2_max, B_max, R_max, D_max,
                 lambda1_max, A_max]
-    return indiv_low, indiv_up, ELEMENT_NUM, ELEMENT_NAME,\
-           RANDOM_SEED, POP_SIZE, MAX_GEN, CXPB, MUTPB
+    parameters_GA = {'ELEMENT_NAME': ELEMENT_NAME,
+                     'RANDOM_SEED': RANDOM_SEED,
+                     'POP_SIZE': POP_SIZE,
+                     'MAX_GEN': MAX_GEN,
+                     'CXPB': CXPB,
+                     'MUTPB': MUTPB}
+    CRITERIA = {'RMSD_COHESIVE_SE2': RMSD_COHESIVE_SE2,
+                'DISSOCIATION_SE2': DISSOCIATION_SE2,
+                'RMSD_COHESIVE_SE3': RMSD_COHESIVE_SE3,
+                'RMSD_COHESIVE_SE6': RMSD_COHESIVE_SE6,
+                'RMSD_COHESIVE_SE8_RING': RMSD_COHESIVE_SE8_RING,
+                'RMSD_COHESIVE_SE8_HELIX': RMSD_COHESIVE_SE8_HELIX,
+                'RMSD_COHESIVE_SE8_LADDER': RMSD_COHESIVE_SE8_LADDER}
+
+    return indiv_low, indiv_up, parameters_GA, CRITERIA
