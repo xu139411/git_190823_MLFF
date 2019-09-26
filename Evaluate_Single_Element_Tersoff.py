@@ -85,8 +85,7 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
                 return sse, False
 
 # The evaluate function
-def evaluate_single_element_Tersoff(individual, element_name=None,
-                                    criteria=None):
+def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None):
     #   Set up working directory
     element_name = element_name[0]
     path_eval = os.path.join(os.path.abspath('.'),
@@ -107,7 +106,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     path_training = os.path.join(os.path.abspath('.'), 'training_data',
                                  element_name+'.txt')
     training_data = read_training_data(path_training)
-
     #   Set up evaluation
     #   eval_seq records the sequence of evaluation
     eval_seq = list(criteria.keys())
@@ -126,7 +124,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         #   fitness value is returned
 
         #   Copy LAMMPS data to the result directory
-        if eval_label is not 'RMSD_COHESICE_SE2':
+        if eval_label is not 'RMSD_COHESIVE_SE2':
             continue
         lammps_file_path = os.path.join('.', 'lammps_input', eval_label, '')
         for _ in os.listdir(lammps_file_path):
@@ -148,3 +146,21 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         else:
             fitness_current = fitness_current + sse
             return fitness_current,
+
+#           For testing purpose
+#ind_test = [9.63864476911458, 4.649431802224302, 34.52946334483883,
+            #41.497503218167566, -4.360361672979792, 17.059460886599563,
+            #7.706376286903511, 3.7486736441243638, 549.8068421028667,
+            #2.8742436240522284, 0.1941839547042561, 9.34690108401631,
+            #1175.070667905]
+#ELEMENT_NAME = ['Se']
+#CRITERIA = {'RMSD_COHESIVE_SE2': [0.02, 0.1],
+            #'DISSOCIATION_SE2': [0.2],
+            #'RMSD_COHESIVE_SE3': [0.05, 0.2],
+            #'RMSD_COHESIVE_SE6': [0.1, 0.05],
+            #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
+            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.05],
+            #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2]}
+
+#result = evaluate_single_element_Tersoff(ind_test, element_name=ELEMENT_NAME,criteria=CRITERIA)
+#print(result)

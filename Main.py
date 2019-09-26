@@ -61,7 +61,8 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 #   register the goal / fitness function
 if len(parameters_GA['ELEMENT_NAME']) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
-                     element_name=parameters_GA['ELEMENT_NAME'], criteria=CRITERIA)
+                     element_name=parameters_GA['ELEMENT_NAME'],
+                     criteria=CRITERIA)
 else:
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
@@ -115,7 +116,7 @@ def main(checkpoint=None):
         g = 0
 
         #   Begin the evolution
-        while g < parameters_GA['MAX_GENERATION']:
+        while g < parameters_GA['MAX_GEN']:
             #   A new generation
             g = g + 1
             print("-- GENERATION {0}".format(g))
