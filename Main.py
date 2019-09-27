@@ -114,7 +114,6 @@ def main(checkpoint=None):
 
         #   Variable keeping track of the number of generations
         g = 0
-
         #   Begin the evolution
         while g < parameters_GA['MAX_GEN']:
             #   A new generation
