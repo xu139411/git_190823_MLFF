@@ -58,18 +58,26 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
     training_data = {_: np.array(training_data[_]) for _ in training_data.keys()}
     criteria = {_: np.array(criteria[_]) for _ in criteria.keys()}
     sse_max = 999
-    predictions = False
+    predictions = []
     #   Fetch data from log file
     with open(os.path.join(path_tmp, eval_label + '.log'), 'r') as output:
         all_lines = output.readlines()
         for line in all_lines:
             if 'Predictions' in line and 'print' not in line:
-                predictions = np.array(list(map(float, line.split()[1:])))
+                if 'RMSD_COHESIVE' in eval_label:
+                    predictions = list(map(float, line.split()[1:]))
+                else:
+                    predictions.append(float(line.split()[1]))
     #   Return Error sum of squares and whether to proceed
-    if predictions is False:
+    if len(predictions) == 0:
+        return sse_max, False
+    elif len(predictions) != np.shape(training_data[eval_label])[0] and 'DISSOCIATION' in eval_label:
         return sse_max, False
     else:
+        predictions = np.array(predictions)
         abs_error = np.absolute(predictions - training_data[eval_label])
+        print(abs_error)
+        print(criteria[eval_label])
         sse = np.sum(np.square(abs_error))
         sse = min(sse_max, sse)
         mae = np.mean(abs_error)
@@ -124,8 +132,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None
         #   fitness value is returned
 
         #   Copy LAMMPS data to the result directory
-        if eval_label is not 'RMSD_COHESIVE_SE2':
-            continue
         lammps_file_path = os.path.join('.', 'lammps_input', eval_label, '')
         for _ in os.listdir(lammps_file_path):
             lammps_file_name = os.path.join(lammps_file_path, _)
@@ -137,7 +143,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None
         os.chdir('..')
 
         sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
-
+        print(i, sse, proceed)
         if proceed:
             fitness_current = fitness_current - fitness_step + sse
             if i == len(eval_seq) - 1:
@@ -148,18 +154,18 @@ def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None
             return fitness_current,
 
 #           For testing purpose
-#ind_test = [9.63864476911458, 4.649431802224302, 34.52946334483883,
-            #41.497503218167566, -4.360361672979792, 17.059460886599563,
-            #7.706376286903511, 3.7486736441243638, 549.8068421028667,
-            #2.8742436240522284, 0.1941839547042561, 9.34690108401631,
-            #1175.070667905]
+#ind_test = [0.349062129091, 0, 1.19864625442,
+            #1.06060163186, -0.0396671926082, 1,
+            #1, 1.95864203232, 880.038350037,
+            #3.41105925109, 0.376880167844, 2.93792248396,
+            #4929.6960118]
 #ELEMENT_NAME = ['Se']
 #CRITERIA = {'RMSD_COHESIVE_SE2': [0.02, 0.1],
             #'DISSOCIATION_SE2': [0.2],
-            #'RMSD_COHESIVE_SE3': [0.05, 0.2],
+            #'RMSD_COHESIVE_SE3': [0.05, 0.25],
             #'RMSD_COHESIVE_SE6': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
-            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.05],
+            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
             #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2]}
 
 #result = evaluate_single_element_Tersoff(ind_test, element_name=ELEMENT_NAME,criteria=CRITERIA)

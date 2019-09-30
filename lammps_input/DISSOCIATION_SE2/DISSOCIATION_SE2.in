@@ -1,0 +1,46 @@
+# WSe2 system
+# By: Xu, Zhang
+# Data July 01, 2019
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+# Variable to loop over different structure files
+variable        file_name index 1.data 2.data 3.data 4.data 5.data 6.data 7.data 8.data 9.data 10.data 11.data 
+
+#Retrieve atom information
+box             tilt large
+read_data       ${file_name}
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+
+print           "Predictions ${eng_atom}"
+next            file_name
+jump            DISSOCIATION_SE2.in

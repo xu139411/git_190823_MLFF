@@ -1,0 +1,55 @@
+# WSe2 system
+# By: Xu, Zhang
+# Data July 01, 2019
+#==================================================
+#   Initialize the program
+#   Set simulation box properties
+boundary        p p p
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+#   Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        0.001
+
+#   Retrieve atom information
+box             tilt large
+read_data       Se3.data
+#   Atom notation
+#1 Se
+
+#==================================================
+#   Force field definition
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+#==================================================
+#Variables are defined here
+variable        MinimizeThermo equal 1
+variable        MinimizeStep equal 100
+#variable        NVTThermo equal 1
+#variable        NVTDump equal 10
+#variable        NVTStep equal 100
+#variable        T1 equal 300
+#==================================================
+#   Here begins the simulations
+#   Root mean-square displacement
+compute         c1 all msd
+variable        rmsd equal sqrt(c_c1[4])
+variable        cohesive equal pe/3
+#Define a global calculation for the potential energy
+thermo_style    custom step pe v_rmsd
+thermo          ${MinimizeThermo}
+
+minimize        1e-6 1e-6 ${MinimizeStep} ${MinimizeStep}
+
+#   1 ps of MD runs
+#velocity	all create ${T1} 42 dist gaussian
+#thermo          ${NVTThermo}
+#dump            d1 all custom ${NVTDump} nvt.dump id type x y z
+#fix             f1 all nvt temp ${T1} ${T1} $(100.0*dt)
+#run             ${NVTStep}
+#unfix           f1
+#undump          d1
+print           "Predictions ${rmsd} ${cohesive}"
