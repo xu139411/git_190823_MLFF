@@ -4,6 +4,7 @@
 # Standard library imports
 import random
 import pickle
+import os
 # Third party imports: Numpy, DEAP and SCOOP
 import numpy as np
 from deap import base, creator, tools
@@ -58,7 +59,7 @@ toolbox.register("individual", tools.initCycle, creator.Individual,
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 #   Operator registration
-#   register the goal / fitness function
+#   Register the goal / fitness function
 if len(parameters_GA['ELEMENT_NAME']) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
                      element_name=parameters_GA['ELEMENT_NAME'],
@@ -67,100 +68,115 @@ else:
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
 
-#   register the crossover operator. Simulated Binary Bounded algorithm
+#   Register the crossover operator. Simulated Binary Bounded algorithm
 #   is used with an eta value of 20 and bounds for parameters.
 toolbox.register("mate", tools.cxSimulatedBinaryBounded, eta=20,
                  low=indiv_low, up=indiv_up)
-#   register the mutation operator. Polynomial algorithm is used with
+#   Register the mutation operator. Polynomial algorithm is used with
 #   an eta value of 20 and bounds for parameters. The probability for
 #   each attribute to be mutated is equal to 1/num_attributes
 toolbox.register("mutate", tools.mutPolynomialBounded, eta=20,
                  low=indiv_low, up=indiv_up,
                  indpb=1/len(indiv_low))
-#   register the selection operator. Tournament algorithm is used. For
+#   Register the selection operator. Tournament algorithm is used. For
 #   each selection, 3 individuals are chosen, and the best among them is
 #   selected.
 #   ***Note that DEAP use tournament with replacement, while in the
 #      paper tournament without replacement is used. This could cause
 #      deviation of results.
 toolbox.register("select", tools.selTournament, tournsize=3)
+#   register the statistics module that calculates and stores the statistics
+stats = tools.Statistics(key=lambda ind: ind.fitness.values)
+stats.register("avg", np.mean)
+stats.register("std", np.std)
+stats.register("min", np.min)
+stats.register("max", np.max)
 
 # Main function
 def main(checkpoint=None):
     if checkpoint:
         #   A file name has been given, then load the data from the file
-        with open(checkpoint, "r") as cp_file:
+        with open(checkpoint, "rb") as cp_file:
             cp = pickle.load(cp_file)
-        population = cp["population"]
+        pop = cp["population"]
         start_gen = cp["generation"]
-        halloffame = cp["halloffame"]
+        #halloffame = cp["halloffame"]
         logbook = cp["logbook"]
         random.setstate(cp["rndstate"])
     else:
         #   Start a new evolution with a specified random_seed
         random.seed(parameters_GA['RANDOM_SEED'])
         #   Create an initial population of POP_SIZE individuals (where)
-        #   each individual is a list of 13 force field parameters
+        #   Each individual is a list of 13 force field parameters
         pop = toolbox.population(n=parameters_GA['POP_SIZE'])
+        #   Starting generation
+        start_gen = 0
+        #   Create a logbook
+        logbook = tools.Logbook()
 
-        print("START OF EVALUATION")
-        #   Evaluate the entire population
-        fitnesses = list(map(toolbox.evaluate, pop))
-        for ind, fit in zip(pop, fitnesses):
+    #   Evaluate the entire population
+    fitnesses = list(map(toolbox.evaluate, pop))
+    for ind, fit in zip(pop, fitnesses):
+        ind.fitness.values = fit
+
+    #   Extracting the fitnesses of all individuals in the current population
+    fits = [ind.fitness.values[0] for ind in pop]
+
+    #   Begin the evolution
+    for g in range(start_gen+1, parameters_GA['MAX_GEN']+1):
+        print("-- GENERATION {0}".format(g))
+        #   Select individuals for the next generation
+        offspring = toolbox.select(pop, len(pop))
+        #   Clone the selected individuals
+        offspring = list(map(toolbox.clone, offspring))
+
+        #   Apply crossover and mutation on the offspring
+        for child1, child2 in zip(offspring[::2], offspring[1::2]):
+            #   Cross two individuals with probability CXPB
+            if random.random() < parameters_GA['CXPB']:
+                toolbox.mate(child1, child2)
+                #   Fitness values of the children must be recalculated
+                del child1.fitness.values
+                del child2.fitness.values
+        for mutant in offspring:
+            #   Mutate an individual with probability MUTPB
+            if random.random() < parameters_GA['MUTPB']:
+                toolbox.mutate(mutant)
+                del mutant.fitness.values
+        #   Evaluate the individuals with invalid fitnesses
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        fitnesses = map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
-        print(" EVALUATED {0} INDIVIDUALS".format(len(pop)))
-        #   Extracting the fitnesses of all individuals in the current population
-        fits = [ind.fitness.values[0] for ind in pop]
+        #   The population is entirely replaced by the offspring
+        pop[:] = offspring
+        #   Compute the statistics and record them in the logbook
+        record = stats.compile(pop)
+        logbook.record(gen=g, evals=len(invalid_ind), **record)
+        #   Save the optimization every FREQ generation
+        if g % parameters_GA['FREQ'] == 0:
+            #   Fill the dictionary using the dict(key=value[, ...]) constructor
+            cp = dict(population=pop, generation=g, logbook=logbook,
+                      rndstate=random.getstate())
+            #   Create the folder checkpoint, and dump the data
+            path_log = os.path.join(os.path.abspath('.'), 'checkpoint', '')
+            cp_file_name = os.path.join(path_log, 'cp_'+str(g)+'.pkl')
+            if 'checkpoint' in os.listdir('.'):
+                pass
+            else:
+                os.mkdir(path_log)
+            with open(cp_file_name, 'wb') as cp_file:
+                pickle.dump(cp, cp_file)
+            #   Compute and record the statistics into the logbook
+            logbook.header = 'gen', 'avg', 'std', 'min', 'max'
+            print(logbook)
 
-        #   Variable keeping track of the number of generations
-        g = 0
-        #   Begin the evolution
-        while g < parameters_GA['MAX_GEN']:
-            #   A new generation
-            g = g + 1
-            print("-- GENERATION {0}".format(g))
-            #   Select individuals for the next generation
-            offspring = toolbox.select(pop, len(pop))
-            #   Clone the selected individuals
-            offspring = list(map(toolbox.clone, offspring))
+    print("-- End of evolution --")
 
-            #   Apply crossover and mutation on the offspring
-            for child1, child2 in zip(offspring[::2], offspring[1::2]):
-                #   Cross two individuals with probability CXPB
-                if random.random() < parameters_GA['CXPB']:
-                    toolbox.mate(child1, child2)
-                    #   Fitness values of the children must be recalculated
-                    del child1.fitness.values
-                    del child2.fitness.values
-            for mutant in offspring:
-                #   Mutate an individual with probability MUTPB
-                if random.random() < parameters_GA['MUTPB']:
-                    toolbox.mutate(mutant)
-                    del mutant.fitness.values
-            #   Evaluate the individuals with invalid fitnesses
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            fitnesses = map(toolbox.evaluate, invalid_ind)
-            for ind, fit in zip(invalid_ind, fitnesses):
-                ind.fitness.values = fit
-            #   The population is entirely replaced by the offspring
-            pop[:] = offspring
-            #   Gather all the fitnesses in one list and print the stats
-            fits = [ind.fitness.values[0] for ind in pop]
-            length = len(pop)
-            mean = sum(fits) / length
-            sum2 = sum(x*x for x in fits)
-            std = abs(sum2 / length - mean**2)**0.5
-            print(" Min {0}".format(min(fits)))
-            print(" Max {0}".format(max(fits)))
-            print(" Avg {0}".format(mean))
-            print(" Std {0}".format(std))
-
-        print("-- End of evolution --")
-
-        best_ind = tools.selBest(pop, 1)[0]
-        print(" The best individual is {0}, the best fitness is {1}".format(
-                best_ind, best_ind.fitness.values)
-        )
+    best_ind = tools.selBest(pop, 1)[0]
+    print(" The best individual is {0}, the best fitness is {1}".format(
+            best_ind, best_ind.fitness.values)
+         )
 
 if __name__ == "__main__":
-    main()
+    main('./checkpoint/cp_30.pkl')

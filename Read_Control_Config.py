@@ -41,6 +41,7 @@ def read_control_config():
     MAX_GEN = int(config.get('Parameters for GA Work Flow', 'MAX_GENERATION'))
     CXPB = float(config.get('Parameters for GA Work Flow', 'CXPB'))
     MUTPB = float(config.get('Parameters for GA Work Flow', 'MUTPB'))
+    FREQ = int(config.get('Parameters for GA Work Flow', 'FREQ'))
 
     #   Convergence criteria for evaluation
     RMSD_COHESIVE_SE2 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE2').split()))
@@ -62,7 +63,8 @@ def read_control_config():
                      'POP_SIZE': POP_SIZE,
                      'MAX_GEN': MAX_GEN,
                      'CXPB': CXPB,
-                     'MUTPB': MUTPB}
+                     'MUTPB': MUTPB,
+                     'FREQ': FREQ}
     CRITERIA = {'RMSD_COHESIVE_SE2': RMSD_COHESIVE_SE2,
                 'DISSOCIATION_SE2': DISSOCIATION_SE2,
                 'RMSD_COHESIVE_SE3': RMSD_COHESIVE_SE3,

@@ -76,8 +76,6 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
     else:
         predictions = np.array(predictions)
         abs_error = np.absolute(predictions - training_data[eval_label])
-        print(abs_error)
-        print(criteria[eval_label])
         sse = np.sum(np.square(abs_error))
         sse = min(sse_max, sse)
         mae = np.mean(abs_error)
@@ -143,7 +141,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None
         os.chdir('..')
 
         sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
-        print(i, sse, proceed)
+
         if proceed:
             fitness_current = fitness_current - fitness_step + sse
             if i == len(eval_seq) - 1:
