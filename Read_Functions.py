@@ -1,6 +1,7 @@
 #   Retrieve parameters for the genetic algorithm from the GA_control.txt file
 # Standard library imports
 import configparser
+import os
 
 def read_control_config():
     config = configparser.ConfigParser()
@@ -74,3 +75,24 @@ def read_control_config():
                 'RMSD_COHESIVE_SE8_LADDER': RMSD_COHESIVE_SE8_LADDER}
 
     return indiv_low, indiv_up, parameters_GA, CRITERIA
+
+
+#   Read DFT training data into a dictionary
+def read_training_data(element_name):
+    training_data = {}
+    #   element_name can be ['Se'] or ['W', 'Se']
+    if len(element_name) == 1:
+        element_name = element_name[0]
+    else:
+        element_name = element_name[0] + element_name[1]
+    path_tmp = os.path.join(os.path.abspath('.'), 'training_data',
+                            element_name + '.txt')
+    with open(path_tmp, 'r') as input_file:
+        all_lines = input_file.readlines()
+        for line in all_lines:
+            if '#' in line:
+                continue
+            else:
+                line_split = line.split()
+                training_data[line_split[0]] = list(map(float, line_split[1:]))
+    return training_data

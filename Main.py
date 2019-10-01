@@ -11,11 +11,14 @@ from deap import base, creator, tools
 from scoop import futures
 #toolbox.register("map", futures.map) # Stay with scoop
 # Local library imports
-from Read_Control_Config import read_control_config
+from Read_Functions import read_control_config
+from Read_Functions import read_training_data
 from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
 
 # Retrieve parameters: list, list, dictionary, dictionary
 indiv_low, indiv_up, parameters_GA, CRITERIA = read_control_config()
+# Retrieve the DFT training data into a dictionary
+training_data = read_training_data(parameters_GA['ELEMENT_NAME'])
 
 # DEAP setup
 #   Minimize the fitness value
@@ -63,6 +66,7 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 if len(parameters_GA['ELEMENT_NAME']) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
                      element_name=parameters_GA['ELEMENT_NAME'],
+                     training_data=training_data,
                      criteria=CRITERIA)
 else:
     pass

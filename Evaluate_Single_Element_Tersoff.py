@@ -38,19 +38,6 @@ def create_fffile(path_tmp, element_name, individual):
         for parameter in individual:
             output_file.write(str(parameter) + ' ')
 
-#   Read DFT training data
-def read_training_data(path_tmp):
-    training_data = {}
-    with open(path_tmp, 'r') as input_file:
-        all_lines = input_file.readlines()
-        for line in all_lines:
-            if '#' in line:
-                continue
-            else:
-                line_split = line.split()
-                training_data[line_split[0]] = list(map(float, line_split[1:]))
-    return training_data
-
 #   Calculate the Error sum of squares and decide whether or not to proceed the
 #   evaluation
 def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
@@ -91,7 +78,8 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
                 return sse, False
 
 # The evaluate function
-def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None):
+def evaluate_single_element_Tersoff(individual, element_name=None,
+                                    training_data=None, criteria=None):
     #   Set up working directory
     element_name = element_name[0]
     path_eval = os.path.join(os.path.abspath('.'),
@@ -108,10 +96,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None, criteria=None
     ind_all = [1] + ind
     create_fffile(path_eval, element_name, ind_all)
 
-    #   Fetch the training data
-    path_training = os.path.join(os.path.abspath('.'), 'training_data',
-                                 element_name+'.txt')
-    training_data = read_training_data(path_training)
     #   Set up evaluation
     #   eval_seq records the sequence of evaluation
     eval_seq = list(criteria.keys())
