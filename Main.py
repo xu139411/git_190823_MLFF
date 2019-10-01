@@ -161,6 +161,7 @@ def main(checkpoint=None):
             #   Create the folder checkpoint, and dump the data
             path_log = os.path.join(os.path.abspath('.'), 'checkpoint', '')
             cp_file_name = os.path.join(path_log, 'cp_'+str(g)+'.pkl')
+            log_file_name = os.path.join(path_log, 'log_'+str(g)+'.txt')
             if 'checkpoint' in os.listdir('.'):
                 pass
             else:
@@ -168,8 +169,13 @@ def main(checkpoint=None):
             with open(cp_file_name, 'wb') as cp_file:
                 pickle.dump(cp, cp_file)
             #   Compute and record the statistics into the logbook
-            logbook.header = 'gen', 'avg', 'std', 'min', 'max'
-            print(logbook)
+            log_gen, log_avg, log_std, log_min, log_max = \
+            logbook.select('gen', 'avg', 'std', 'min', 'max')
+            with open(log_file_name, 'w') as log_file:
+                log_file.write('gen' + 12*' ' + 'avg' + 12*' '  + 'std' + 12*' '
+                               + 'min' + 12*' ' + 'max\n')
+                for _ in range(len(log_gen)):
+                    log_file.write('{0:<15d}{1:<15.4f}{2:<15.4f}{3:<15.4f}{4:<15.4f}\n'.format(log_gen[_], log_avg[_], log_std[_], log_min[_], log_max[_]))
 
     print("-- End of evolution --")
 
@@ -179,4 +185,4 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main('./checkpoint/cp_30.pkl')
+    main('./checkpoint/cp_120.pkl')
