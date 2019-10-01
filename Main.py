@@ -98,11 +98,11 @@ def main(checkpoint=None):
         #   A file name has been given, then load the data from the file
         with open(checkpoint, "rb") as cp_file:
             cp = pickle.load(cp_file)
+        random.setstate(cp["rndstate"])
         pop = cp["population"]
         start_gen = cp["generation"]
-        #halloffame = cp["halloffame"]
+        hof = cp["halloffame"]
         logbook = cp["logbook"]
-        random.setstate(cp["rndstate"])
     else:
         #   Start a new evolution with a specified random_seed
         random.seed(parameters_GA['RANDOM_SEED'])
@@ -111,6 +111,8 @@ def main(checkpoint=None):
         pop = toolbox.population(n=parameters_GA['POP_SIZE'])
         #   Starting generation
         start_gen = 0
+        #   Hall of fame object that stores the best three individuals thus far
+        hof = tools.HallOfFame(3)
         #   Create a logbook
         logbook = tools.Logbook()
 
@@ -118,15 +120,13 @@ def main(checkpoint=None):
     fitnesses = list(map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
-
-    #   Extracting the fitnesses of all individuals in the current population
-    fits = [ind.fitness.values[0] for ind in pop]
-
+    #   Find the Hall of fame individuals
+    hof.update(pop)
     #   Begin the evolution
     for g in range(start_gen+1, parameters_GA['MAX_GEN']+1):
         print("-- GENERATION {0}".format(g))
-        #   Select individuals for the next generation
-        offspring = toolbox.select(pop, len(pop))
+        #   Select individuals for the next generation, hof is always included
+        offspring = toolbox.select(pop, len(pop)-3) + hof[:]
         #   Clone the selected individuals
         offspring = list(map(toolbox.clone, offspring))
 
@@ -150,6 +150,8 @@ def main(checkpoint=None):
             ind.fitness.values = fit
         #   The population is entirely replaced by the offspring
         pop[:] = offspring
+        #   Update the hof
+        hof.update(pop)
         #   Compute the statistics and record them in the logbook
         record = stats.compile(pop)
         logbook.record(gen=g, evals=len(invalid_ind), **record)
@@ -185,4 +187,4 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main('./checkpoint/cp_120.pkl')
+    main()
