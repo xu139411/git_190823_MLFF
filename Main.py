@@ -9,7 +9,7 @@ import os
 import numpy as np
 from deap import base, creator, tools
 from scoop import futures
-#toolbox.register("map", futures.map) # Stay with scoop
+
 # Local library imports
 from Read_Functions import read_control_config
 from Read_Functions import read_training_data
@@ -95,6 +95,8 @@ stats.register("avg", np.mean)
 stats.register("std", np.std)
 stats.register("min", np.min)
 stats.register("max", np.max)
+#   Register the
+toolbox.register("map", futures.map) # Stay with scoop
 
 # Main function
 def main(checkpoint=None):
@@ -121,7 +123,7 @@ def main(checkpoint=None):
         logbook = tools.Logbook()
 
     #   Evaluate the entire population
-    fitnesses = list(map(toolbox.evaluate, pop))
+    fitnesses = list(toolbox.map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
     #   Find the Hall of fame individuals
@@ -132,7 +134,7 @@ def main(checkpoint=None):
         #   Select individuals for the next generation, hof is always included
         offspring = toolbox.select(pop, len(pop)-3) + hof[:]
         #   Clone the selected individuals
-        offspring = list(map(toolbox.clone, offspring))
+        offspring = list(toolbox.map(toolbox.clone, offspring))
 
         #   Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -149,7 +151,7 @@ def main(checkpoint=None):
                 del mutant.fitness.values
         #   Evaluate the individuals with invalid fitnesses
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = map(toolbox.evaluate, invalid_ind)
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
         #   The population is entirely replaced by the offspring
