@@ -8,6 +8,7 @@ import shutil
 import copy
 # Third party imports: lammps
 import numpy as np
+import scoop
 # Local library imports
 
 #   Create a Tersoff force field file
@@ -81,14 +82,15 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
 def evaluate_single_element_Tersoff(individual, element_name=None,
                                     training_data=None, criteria=None):
     #   Set up working directory
+    job_id = id(scoop.worker)
     element_name = element_name[0]
-    path_eval = os.path.join(os.path.abspath('.'),
-                             'results_single_element_'+element_name, '')
-    if 'results_single_element_' + element_name in os.listdir('.'):
-        pass
-    else:
-        os.mkdir(path_eval)
-
+    path_root = os.path.abspath('.')
+    path_eval = os.path.join(path_root, 'results_'+element_name, str(job_id), '')
+    try:
+        os.makedirs(path_eval)
+    except:
+        shutil.rmtree(path_eval)
+        os.makedirs(path_eval)
     #   Create a force field file
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
@@ -114,7 +116,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         #   fitness value is returned
 
         #   Copy LAMMPS data to the result directory
-        lammps_file_path = os.path.join('.', 'lammps_input', eval_label, '')
+        lammps_file_path = os.path.join(path_root, 'lammps_input', eval_label, '')
         for _ in os.listdir(lammps_file_path):
             lammps_file_name = os.path.join(lammps_file_path, _)
             if os.path.isfile(lammps_file_name):
@@ -122,7 +124,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
 
         os.chdir(path_eval)
         os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
-        os.chdir('..')
+        os.chdir(path_root)
 
         sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
 

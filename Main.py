@@ -80,8 +80,7 @@ toolbox.register("mate", tools.cxSimulatedBinaryBounded, eta=20,
 #   an eta value of 20 and bounds for parameters. The probability for
 #   each attribute to be mutated is equal to 1/num_attributes
 toolbox.register("mutate", tools.mutPolynomialBounded, eta=20,
-                 low=indiv_low, up=indiv_up,
-                 indpb=1/len(indiv_low))
+                 low=indiv_low, up=indiv_up, indpb=1/len(indiv_low))
 #   Register the selection operator. Tournament algorithm is used. For
 #   each selection, 3 individuals are chosen, and the best among them is
 #   selected.
