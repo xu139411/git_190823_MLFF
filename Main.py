@@ -130,7 +130,8 @@ def main(checkpoint=None):
     #   Begin the evolution
     for g in range(start_gen+1, parameters_GA['MAX_GEN']+1):
         print("-- GENERATION {0}".format(g))
-        #   Select individuals for the next generation, hof is always included
+        #   Select individuals for the next generation, hof is always included.
+        #   hof[:] provides a normal list
         offspring = toolbox.select(pop, len(pop)-3) + hof[:]
         #   Clone the selected individuals
         offspring = list(toolbox.map(toolbox.clone, offspring))
@@ -183,6 +184,10 @@ def main(checkpoint=None):
                                + 'min' + 12*' ' + 'max\n')
                 for _ in range(len(log_gen)):
                     log_file.write('{0:<15d}{1:<15.4f}{2:<15.4f}{3:<15.4f}{4:<15.4f}\n'.format(log_gen[_], log_avg[_], log_std[_], log_min[_], log_max[_]))
+                log_file.write('HallofFame individuals thus far:\n')
+                for best in hof:
+                    log_file.writelines('{0} '.format(_) for _ in best)
+                    log_file.write('\n')
 
     print("-- End of evolution --")
 
@@ -192,4 +197,4 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main('./checkpoint/cp_600.pkl')
+    main()
