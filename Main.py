@@ -163,8 +163,8 @@ def main(checkpoint=None):
         #   Save the optimization every FREQ generation
         if g % parameters_GA['FREQ'] == 0:
             #   Fill the dictionary using the dict(key=value[, ...]) constructor
-            cp = dict(population=pop, generation=g, logbook=logbook,
-                      rndstate=random.getstate())
+            cp = dict(rndstate=random.getstate(),population=pop, generation=g,
+                      halloffame=hof, logbook=logbook)
             #   Create the folder checkpoint, and dump the data
             path_log = os.path.join(os.path.abspath('.'), 'checkpoint', '')
             cp_file_name = os.path.join(path_log, 'cp_'+str(g)+'.pkl')
@@ -192,4 +192,4 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main()
+    main('./checkpoint/cp_600.pkl')
