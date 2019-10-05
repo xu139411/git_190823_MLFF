@@ -4,8 +4,12 @@
 
 # Standard library imports
 import os
+PATH_ROOT = os.path.abspath('.')
 import shutil
 import copy
+import logging
+logging_file = os.path.join(PATH_ROOT, 'logging.txt')
+logging.basicConfig(filename=logging_file, level=logging.INFO)
 # Third party imports: lammps
 import numpy as np
 import scoop
@@ -41,7 +45,7 @@ def create_fffile(path_tmp, element_name, individual):
 
 #   Calculate the Error sum of squares and decide whether or not to proceed the
 #   evaluation
-def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
+def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria):
     #   Convert lists in the dictionary to numpy arrays
     training_data = {_: np.array(training_data[_]) for _ in training_data.keys()}
     criteria = {_: np.array(criteria[_]) for _ in criteria.keys()}
@@ -57,9 +61,9 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
                         predictions = list(map(float, line.split()[1:]))
                     else:
                         predictions.append(float(line.split()[1]))
-        print('Successfully read LAMMPS log file')
+        logging.info('%s read LAMMPS log file', str(job_id))
     except:
-        raise OSError('Cannot open LAMMPS log file\n')
+        raise OSError(str(job_id), 'cannot open LAMMPS log file\n')
     #   Return Error sum of squares and whether to proceed
     if len(predictions) == 0:
         return sse_max, False
@@ -88,18 +92,17 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     #   Set up working directory
     job_id = id(scoop.worker)
     element_name = element_name[0]
-    path_root = os.path.abspath('.')
-    path_eval = os.path.join(path_root, 'results_'+element_name, str(job_id), '')
+    path_eval = os.path.join(PATH_ROOT, 'results_'+element_name, str(job_id), '')
     try:
         if os.path.isdir(path_eval):
             shutil.rmtree(path_eval)
             os.makedirs(path_eval)
-            print('successfully made dir')
+            logging.info('%s made dir', str(job_id))
         else:
             os.makedirs(path_eval)
-            print('successfully made dir')
+            logging.info('%s made dir', str(job_id))
     except:
-        raise OSError('Cannot make the directory\n')
+        raise OSError(str(job_id), ' cannot make the directory\n')
     #   Create a force field file
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
@@ -113,6 +116,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     fitness_step = 1000
     fitness_max = len(eval_seq) * fitness_step
     fitness_current = fitness_max
+    proceed = False
 
     #   Start the evaluation
     for i, eval_label in enumerate(eval_seq):
@@ -125,7 +129,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         #   fitness value is returned
 
         #   Copy LAMMPS data to the result directory
-        lammps_file_path = os.path.join(path_root, 'lammps_input', eval_label, '')
+        lammps_file_path = os.path.join(PATH_ROOT, 'lammps_input', eval_label, '')
         for _ in os.listdir(lammps_file_path):
             lammps_file_name = os.path.join(lammps_file_path, _)
             if os.path.isfile(lammps_file_name):
@@ -133,10 +137,10 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
 
         os.chdir(path_eval)
         os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
-        os.chdir(path_root)
-        print('successfully run LAMMPS')
+        os.chdir(PATH_ROOT)
+        logging.info('%s run LAMMPS', str(job_id))
 
-        sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
+        sse, proceed = calculate_sse_proceed(path_eval, job_id, eval_label, training_data, criteria)
 
         if proceed:
             fitness_current = fitness_current - fitness_step + sse
