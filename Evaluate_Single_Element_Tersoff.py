@@ -48,14 +48,18 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
     sse_max = 999
     predictions = []
     #   Fetch data from log file
-    with open(os.path.join(path_tmp, eval_label + '.log'), 'r') as output:
-        all_lines = output.readlines()
-        for line in all_lines:
-            if 'Predictions' in line and 'print' not in line:
-                if 'RMSD_COHESIVE' in eval_label:
-                    predictions = list(map(float, line.split()[1:]))
-                else:
-                    predictions.append(float(line.split()[1]))
+    try:
+        with open(os.path.join(path_tmp, eval_label + '.log'), 'r') as output:
+            all_lines = output.readlines()
+            for line in all_lines:
+                if 'Predictions' in line and 'print' not in line:
+                    if 'RMSD_COHESIVE' in eval_label:
+                        predictions = list(map(float, line.split()[1:]))
+                    else:
+                        predictions.append(float(line.split()[1]))
+        print('Successfully read LAMMPS log file\n')
+    except:
+        raise OSError('Cannot open LAMMPS log file\n')
     #   Return Error sum of squares and whether to proceed
     if len(predictions) == 0:
         return sse_max, False
@@ -88,9 +92,13 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     path_eval = os.path.join(path_root, 'results_'+element_name, str(job_id), '')
     try:
         os.makedirs(path_eval)
+        print('successfully made dir\n')
     except:
         shutil.rmtree(path_eval)
         os.makedirs(path_eval)
+        print('successfully made dir\n')
+    finally:
+        raise OSError('Cannot make the directory\n')
     #   Create a force field file
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
@@ -125,6 +133,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         os.chdir(path_eval)
         os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(path_root)
+        print('successfully run LAMMPS\n')
 
         sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
 
