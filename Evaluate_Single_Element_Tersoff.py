@@ -151,8 +151,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             fitness_current = fitness_current + sse
             return fitness_current,
 
-#           For testing purpose
-#ind_test = [0.349062129091, 0, 1.19864625442,
+        #For testing purpose
+#ind_henry = [0.349062129091, 0, 1.19864625442,
             #1.06060163186, -0.0396671926082, 1,
             #1, 1.95864203232, 880.038350037,
             #3.41105925109, 0.376880167844, 2.93792248396,
@@ -165,6 +165,12 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
             #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2]}
-
-#result = evaluate_single_element_Tersoff(ind_test, element_name=ELEMENT_NAME,criteria=CRITERIA)
+#TRAINING_DATA = {'RMSD_COHESIVE_SE2': [0.0, -2.029814],
+                 #'DISSOCIATION_SE2': [8.138150, 1.948148, -0.696524, -1.804186, -2.029814, -1.894431, -1.608573, -1.278067, -0.954593, -0.661746, -0.389450],
+                 #'RMSD_COHESIVE_SE3': [0.0, -2.170],
+                 #'RMSD_COHESIVE_SE6': [0.0, -2.521578],
+                 #'RMSD_COHESIVE_SE8_RING': [0.0, -2.585449],
+                 #'RMSD_COHESIVE_SE8_HELIX': [0.0, -2.380094],
+                 #'RMSD_COHESIVE_SE8_LADDER': [0.0, -2.346071]}
+#result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA)
 #print(result)
