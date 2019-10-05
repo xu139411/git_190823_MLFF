@@ -57,7 +57,7 @@ def calculate_sse_proceed(path_tmp, eval_label, training_data, criteria):
                         predictions = list(map(float, line.split()[1:]))
                     else:
                         predictions.append(float(line.split()[1]))
-        print('Successfully read LAMMPS log file\n')
+        print('Successfully read LAMMPS log file')
     except:
         raise OSError('Cannot open LAMMPS log file\n')
     #   Return Error sum of squares and whether to proceed
@@ -91,13 +91,14 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     path_root = os.path.abspath('.')
     path_eval = os.path.join(path_root, 'results_'+element_name, str(job_id), '')
     try:
-        os.makedirs(path_eval)
-        print('successfully made dir\n')
+        if os.path.isdir(path_eval):
+            shutil.rmtree(path_eval)
+            os.makedirs(path_eval)
+            print('successfully made dir')
+        else:
+            os.makedirs(path_eval)
+            print('successfully made dir')
     except:
-        shutil.rmtree(path_eval)
-        os.makedirs(path_eval)
-        print('successfully made dir\n')
-    finally:
         raise OSError('Cannot make the directory\n')
     #   Create a force field file
     #   Deep copy to avoid changing the individual list
@@ -133,7 +134,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         os.chdir(path_eval)
         os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(path_root)
-        print('successfully run LAMMPS\n')
+        print('successfully run LAMMPS')
 
         sse, proceed = calculate_sse_proceed(path_eval, eval_label, training_data, criteria)
 
