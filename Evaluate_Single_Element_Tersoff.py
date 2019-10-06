@@ -9,7 +9,7 @@ import shutil
 import copy
 import logging
 logging_file = os.path.join(PATH_ROOT, 'logging.txt')
-logging.basicConfig(filename=logging_file, level=logging.INFO)
+logging.basicConfig(filename=logging_file, level=logging.WARNING)
 # Third party imports: lammps
 import numpy as np
 import scoop
@@ -136,7 +136,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                 shutil.copy(lammps_file_name, path_eval)
 
         os.chdir(path_eval)
-        os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        #os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
         logging.info('%s run LAMMPS', str(job_id))
 
