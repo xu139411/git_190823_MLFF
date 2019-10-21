@@ -1,0 +1,75 @@
+# WSe2 system
+# By: Xu, Zhang
+# Data July 01, 2019
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        0.001
+
+#Retrieve atom information
+box             tilt large
+read_data       Se8ring.data 
+#Atom notation
+#1 W
+#2 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        MinimizeThermo  equal 1
+variable        MinimizeDump    equal 1
+variable        MinimizeStep    equal 1000
+variable        NVTThermo       equal 100
+variable        NVTDump         equal 100
+variable        NVTT1Step       equal 10000
+variable        NVTT2Step       equal 10000
+variable        T1              equal 393 
+variable        T2              equal 553
+#==================================================
+#Here begins the simulations
+#Compute the root mean-square displacement
+compute         c1 all msd
+variable        rmsd equal sqrt(c_c1[4])
+#define a global calculation for the potential energy
+thermo_style    custom step pe v_rmsd 
+thermo          ${MinimizeThermo}
+dump            d1 all custom ${MinimizeDump} minimize.dump id type x y z
+minimize        1e-8 1e-12 ${MinimizeStep} ${MinimizeStep}
+undump          d1
+
+#high temperature stability
+neigh_modify    every 10 delay 10
+velocity        all create ${T1} 4999 dist gaussian
+thermo_style    custom step temp press pe v_rmsd
+thermo          ${NVTThermo}
+fix             f1 all nvt temp ${T1} ${T1} 0.1 
+fix             f2 all momentum 1 angular
+fix             f3 all ave/time ${NVTThermo} ${NVTThermo} ${NVTT1Step} v_rmsd mode scalar
+dump            d1 all custom ${NVTDump} nvt.dump id type x y z
+run             ${NVTT1Step}
+unfix           f1
+variable        rmsd_lowT0 equal f_f3
+variable        rmsd_lowT equal ${rmsd_lowT0}
+
+fix             f1 all nvt temp ${T2} ${T2} 0.1 
+run             ${NVTT2Step}
+variable        rmsd_highT0 equal f_f3
+variable        rmsd_highT equal ${rmsd_highT0}
+print           "Predictions ${rmsd_lowT} ${rmsd_highT}"
+unfix           f1
+unfix           f2
+unfix           f3
+undump          d1

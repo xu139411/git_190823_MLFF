@@ -1,5 +1,7 @@
 #   Training data for Se
 #   cohesive energy of Se2; dissociation energy of Se2 dimer; ...
+#   For MD_SE6 and MD_SE8, the second value is an arbitrarily large value. The
+#   more close the result is to this value, the better the performance
 RMSD_COHESIVE_SE2 0.0 -2.029814
 DISSOCIATION_SE2 8.138150 1.948148 -0.696524 -1.804186 -2.029814 -1.894431 -1.608573 -1.278067 -0.954593 -0.661746 -0.389450
 RMSD_COHESIVE_SE3 0.0 -2.170
@@ -7,3 +9,5 @@ RMSD_COHESIVE_SE6 0.0 -2.521578
 RMSD_COHESIVE_SE8_RING 0.0 -2.585449
 RMSD_COHESIVE_SE8_HELIX 0.0 -2.380094
 RMSD_COHESIVE_SE8_LADDER 0.0 -2.346071
+MD_SE6 0.0 4.0
+MD_SE8_RING 0.0 4.0

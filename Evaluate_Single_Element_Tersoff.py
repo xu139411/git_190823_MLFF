@@ -59,8 +59,12 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                 if 'Predictions' in line and 'print' not in line:
                     if 'RMSD_COHESIVE' in eval_label:
                         predictions = list(map(float, line.split()[1:]))
-                    else:
+                    elif 'DISSOCIATION' in eval_label:
                         predictions.append(float(line.split()[1]))
+                    elif 'MD' in eval_label:
+                        predictions = list(map(float, line.split()[1:]))
+                    else:
+                        raise ValueError(str(job_id), 'cannot retrieve the target parameters for optimization\n')
         logging.info('%s read LAMMPS log file', str(job_id))
     except:
         raise OSError(str(job_id), 'cannot open LAMMPS log file\n')
@@ -80,27 +84,34 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                 return sse, True
             else:
                 return sse, False
-        else:
+        elif 'DISSOCIATION' in eval_label:
             if mae < criteria[eval_label][0]:
                 return sse, True
             else:
                 return sse, False
+        elif 'MD' in eval_label:
+            # RMSD at low T is smaller than the criteria, while RMSD at high T is larger than the criteria
+            if abs_error[0] <= criteria[eval_label][0] and abs_error[1] >= criteria[eval_label][1]:
+                return sse, True
+            else:
+                return sse, False
+        else:
+            raise ValueError(str(job_id), 'cannot retrieve the target parameters for optimization\n')
 
 # The evaluate function
 def evaluate_single_element_Tersoff(individual, element_name=None,
                                     training_data=None, criteria=None):
     #   Set up working directory
-    job_id = id(scoop.worker)
+    job_id = 42
+    #job_id = id(scoop.worker)
     element_name = element_name[0]
     path_eval = os.path.join(PATH_ROOT, 'results_'+element_name, str(job_id), '')
     try:
         if os.path.isdir(path_eval):
             shutil.rmtree(path_eval)
             os.makedirs(path_eval)
-            logging.info('%s made dir', str(job_id))
         else:
             os.makedirs(path_eval)
-            logging.info('%s made dir', str(job_id))
     except:
         raise OSError(str(job_id), ' cannot make the directory\n')
     #   Create a force field file
@@ -139,7 +150,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
         #os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
-        logging.info('%s run LAMMPS', str(job_id))
 
         sse, proceed = calculate_sse_proceed(path_eval, job_id, eval_label, training_data, criteria)
 
@@ -165,13 +175,17 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             #'RMSD_COHESIVE_SE6': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
-            #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2]}
+            #'RMSD_COHESIVE_SE8_LADDER': [0.6, 0.2],
+            #'MD_SE6': [0.3, 0.8],
+            #'MD_SE8_RING': [0.5, 0.8]}
 #TRAINING_DATA = {'RMSD_COHESIVE_SE2': [0.0, -2.029814],
                  #'DISSOCIATION_SE2': [8.138150, 1.948148, -0.696524, -1.804186, -2.029814, -1.894431, -1.608573, -1.278067, -0.954593, -0.661746, -0.389450],
                  #'RMSD_COHESIVE_SE3': [0.0, -2.170],
                  #'RMSD_COHESIVE_SE6': [0.0, -2.521578],
                  #'RMSD_COHESIVE_SE8_RING': [0.0, -2.585449],
                  #'RMSD_COHESIVE_SE8_HELIX': [0.0, -2.380094],
-                 #'RMSD_COHESIVE_SE8_LADDER': [0.0, -2.346071]}
+                 #'RMSD_COHESIVE_SE8_LADDER': [0.0, -2.346071],
+                 #'MD_SE6': [0.0, 4.0],
+                 #'MD_SE8_RING': [0.0, 4.0]}
 #result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA)
 #print(result)
