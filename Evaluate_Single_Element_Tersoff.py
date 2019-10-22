@@ -7,6 +7,7 @@ import os
 PATH_ROOT = os.path.abspath('.')
 import shutil
 import copy
+import time
 import logging
 logging_file = os.path.join(PATH_ROOT, 'logging.txt')
 logging.basicConfig(filename=logging_file, level=logging.WARNING)
@@ -52,8 +53,12 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
     sse_max = 999
     predictions = []
     #   Fetch data from log file
-    try:
-        with open(os.path.join(path_tmp, eval_label + '.log'), 'r') as output:
+    log_file_path = os.path.join(path_tmp, eval_label + '.log')
+    while not os.path.exists(log_file_path):
+        logging.warning('%s cannot read LAMMPS log file', str(job_id))
+        time.sleep(0.1)
+    if os.path.isfile(log_file_path):
+        with open(log_file_path, 'r') as output:
             all_lines = output.readlines()
             for line in all_lines:
                 if 'Predictions' in line and 'print' not in line:
@@ -65,8 +70,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                         predictions = list(map(float, line.split()[1:]))
                     else:
                         raise ValueError(str(job_id), 'cannot retrieve the target parameters for optimization\n')
-        logging.info('%s read LAMMPS log file', str(job_id))
-    except:
+    else:
         raise OSError(str(job_id), 'cannot open LAMMPS log file\n')
     #   Return Error sum of squares and whether to proceed
     if len(predictions) == 0:
@@ -102,8 +106,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
 def evaluate_single_element_Tersoff(individual, element_name=None,
                                     training_data=None, criteria=None):
     #   Set up working directory
-    job_id = 42
-    #job_id = id(scoop.worker)
+    job_id = id(scoop.worker)
     element_name = element_name[0]
     path_eval = os.path.join(PATH_ROOT, 'results_'+element_name, str(job_id), '')
     try:
