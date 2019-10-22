@@ -52,6 +52,8 @@ def read_control_config():
     RMSD_COHESIVE_SE8_RING = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_RING').split()))
     RMSD_COHESIVE_SE8_HELIX = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_HELIX').split()))
     RMSD_COHESIVE_SE8_LADDER = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_LADDER').split()))
+    MD_SE6 = list(map(float, config.get('Convergence criteria Se', 'MD_SE6').split()))
+    MD_SE8_RING = list(map(float, config.get('Convergence criteria Se', 'MD_SE8_RING').split()))
 
     indiv_low = [gamma_min, lambda3_min, c_min, d_min, costheta0_min,
                  n_min, beta_min, lambda2_min, B_min, R_min, D_min,
@@ -72,7 +74,9 @@ def read_control_config():
                 'RMSD_COHESIVE_SE6': RMSD_COHESIVE_SE6,
                 'RMSD_COHESIVE_SE8_RING': RMSD_COHESIVE_SE8_RING,
                 'RMSD_COHESIVE_SE8_HELIX': RMSD_COHESIVE_SE8_HELIX,
-                'RMSD_COHESIVE_SE8_LADDER': RMSD_COHESIVE_SE8_LADDER}
+                'RMSD_COHESIVE_SE8_LADDER': RMSD_COHESIVE_SE8_LADDER,
+                'MD_SE6': MD_SE6,
+                'MD_SE8_RING': MD_SE8_RING}
 
     return indiv_low, indiv_up, parameters_GA, CRITERIA
 
