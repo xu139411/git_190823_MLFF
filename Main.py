@@ -188,6 +188,8 @@ def main(checkpoint=None):
                 for best in hof:
                     log_file.writelines('{0} '.format(_) for _ in best)
                     log_file.write('\n')
+                    log_file.writelines('The fitness value is {0}'.format(best.fitness.values))
+                    log_file.write('\n')
 
     print("-- End of evolution --")
 
@@ -197,4 +199,4 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main()
+    main('./cp_600.pkl')

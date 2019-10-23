@@ -51,6 +51,7 @@ minimize        1e-8 1e-12 ${MinimizeStep} ${MinimizeStep}
 undump          d1
 
 #high temperature stability
+reset_timestep  0
 neigh_modify    every 10 delay 10
 velocity        all create ${T1} 4999 dist gaussian
 thermo_style    custom step temp press pe v_rmsd
