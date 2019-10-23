@@ -199,4 +199,5 @@ def main(checkpoint=None):
          )
 
 if __name__ == "__main__":
-    main('./cp_600.pkl')
+    main()
+    #main('./cp_600.pkl')
