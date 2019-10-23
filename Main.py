@@ -190,13 +190,15 @@ def main(checkpoint=None):
                     log_file.write('\n')
                     log_file.writelines('The fitness value is {0}'.format(best.fitness.values))
                     log_file.write('\n')
+                log_file.write('The best individuals in the current generation:\n')
+                best_ind = tools.selBest(pop, 3)
+                for best in best_ind:
+                    log_file.writelines('{0} '.format(_) for _ in best)
+                    log_file.write('\n')
+                    log_file.writelines('The fitness value is {0}'.format(best.fitness.values))
+                    log_file.write('\n')
 
     print("-- End of evolution --")
-
-    best_ind = tools.selBest(pop, 1)[0]
-    print(" The best individual is {0}, the best fitness is {1}".format(
-            best_ind, best_ind.fitness.values)
-         )
 
 if __name__ == "__main__":
     main()
