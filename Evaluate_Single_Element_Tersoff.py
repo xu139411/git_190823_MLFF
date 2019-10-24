@@ -95,7 +95,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                 return sse, False
         elif 'MD' in eval_label:
             # RMSD at low T is smaller than the criteria, while RMSD at high T is larger than the criteria
-            if abs_error[0] <= criteria[eval_label][0] and abs_error[1] >= criteria[eval_label][1]:
+            if predictions[0] <= criteria[eval_label][0] and predictions[1] >= criteria[eval_label][1]:
                 return sse, True
             else:
                 return sse, False

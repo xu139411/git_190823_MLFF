@@ -80,7 +80,6 @@ def read_control_config():
 
     return indiv_low, indiv_up, parameters_GA, CRITERIA
 
-
 #   Read DFT training data into a dictionary
 def read_training_data(element_name):
     training_data = {}
