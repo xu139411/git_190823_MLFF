@@ -45,6 +45,7 @@ def read_control_config():
     FREQ = int(config.get('Parameters for GA Work Flow', 'FREQ'))
 
     #   Convergence criteria for evaluation
+    #   A list is returned
     RMSD_COHESIVE_SE2 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE2').split()))
     DISSOCIATION_SE2 = [float(config.get('Convergence criteria Se', 'DISSOCIATION_SE2'))]
     RMSD_COHESIVE_SE3 = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE3').split()))
@@ -52,8 +53,10 @@ def read_control_config():
     RMSD_COHESIVE_SE8_RING = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_RING').split()))
     RMSD_COHESIVE_SE8_HELIX = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_HELIX').split()))
     RMSD_COHESIVE_SE8_LADDER = list(map(float, config.get('Convergence criteria Se', 'RMSD_COHESIVE_SE8_LADDER').split()))
-    MD_SE6 = list(map(float, config.get('Convergence criteria Se', 'MD_SE6').split()))
-    MD_SE8_RING = list(map(float, config.get('Convergence criteria Se', 'MD_SE8_RING').split()))
+    MD_SE6_LOWT = [float(config.get('Convergence criteria Se', 'MD_SE6_LOWT'))]
+    MD_SE6_HIGHT = [float(config.get('Convergence criteria Se', 'MD_SE6_HIGHT'))]
+    MD_SE8_RING_LOWT = [float(config.get('Convergence criteria Se', 'MD_SE8_RING_LOWT'))]
+    MD_SE8_RING_HIGHT = [float(config.get('Convergence criteria Se', 'MD_SE8_RING_HIGHT'))]
 
     indiv_low = [gamma_min, lambda3_min, c_min, d_min, costheta0_min,
                  n_min, beta_min, lambda2_min, B_min, R_min, D_min,
@@ -75,8 +78,10 @@ def read_control_config():
                 'RMSD_COHESIVE_SE8_RING': RMSD_COHESIVE_SE8_RING,
                 'RMSD_COHESIVE_SE8_HELIX': RMSD_COHESIVE_SE8_HELIX,
                 'RMSD_COHESIVE_SE8_LADDER': RMSD_COHESIVE_SE8_LADDER,
-                'MD_SE6': MD_SE6,
-                'MD_SE8_RING': MD_SE8_RING}
+                'MD_SE6_LOWT': MD_SE6_LOWT,
+                'MD_SE6_HIGHT': MD_SE6_HIGHT,
+                'MD_SE8_RING_LOWT': MD_SE8_RING_LOWT,
+                'MD_SE8_RING_HIGHT': MD_SE8_RING_HIGHT}
 
     return indiv_low, indiv_up, parameters_GA, CRITERIA
 

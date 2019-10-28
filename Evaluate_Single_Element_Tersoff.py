@@ -56,7 +56,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
     log_file_path = os.path.join(path_tmp, eval_label + '.log')
     while not os.path.exists(log_file_path):
         logging.warning('%s cannot read LAMMPS log file', str(job_id))
-        time.sleep(0.1)
+        time.sleep(0.2)
     if os.path.isfile(log_file_path):
         with open(log_file_path, 'r') as output:
             all_lines = output.readlines()
@@ -93,9 +93,15 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                 return sse, True
             else:
                 return sse, False
-        elif 'MD' in eval_label:
-            # RMSD at low T is smaller than the criteria, while RMSD at high T is larger than the criteria
-            if predictions[0] <= criteria[eval_label][0] and predictions[1] >= criteria[eval_label][1]:
+        elif 'MD' in eval_label and 'LOWT' in eval_label:
+            # RMSD at low T is smaller than the criteria
+            if predictions[0] <= criteria[eval_label][0]:
+                return sse, True
+            else:
+                return sse, False
+        elif 'MD' in eval_label and 'HIGHT' in eval_label:
+            # RMSD at high T is larger than the criteria
+            if predictions[0] >= criteria[eval_label][0]:
                 return sse, True
             else:
                 return sse, False
@@ -150,8 +156,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                 shutil.copy(lammps_file_name, path_eval)
 
         os.chdir(path_eval)
-        #os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
-        os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        #os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
 
         sse, proceed = calculate_sse_proceed(path_eval, job_id, eval_label, training_data, criteria)
@@ -166,21 +172,19 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             return fitness_current,
 
         #For testing purpose
-#ind_henry = [0.349062129091, 0, 1.19864625442,
-            #1.06060163186, -0.0396671926082, 1,
-            #1, 1.95864203232, 880.038350037,
-            #3.41105925109, 0.376880167844, 2.93792248396,
-            #4929.6960118]
+#ind_henry = [0.349062129091, 0, 1.19864625442, 1.06060163186, -0.0396671926082, 1, 1, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
 #ELEMENT_NAME = ['Se']
 #CRITERIA = {'RMSD_COHESIVE_SE2': [0.02, 0.1],
             #'DISSOCIATION_SE2': [0.2],
             #'RMSD_COHESIVE_SE3': [0.05, 0.25],
             #'RMSD_COHESIVE_SE6': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
-            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
-            #'RMSD_COHESIVE_SE8_LADDER': [0.6, 0.2],
-            #'MD_SE6': [0.3, 0.8],
-            #'MD_SE8_RING': [0.5, 0.8]}
+            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.05],
+            #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2],
+            #'MD_SE6_LOWT': [0.3],
+            #'MD_SE6_HIGHT': [0.8],
+            #'MD_SE8_RING_LOWT': [0.5],
+            #'MD_SE8_RING_HIGHT': [0.8]}
 #TRAINING_DATA = {'RMSD_COHESIVE_SE2': [0.0, -2.029814],
                  #'DISSOCIATION_SE2': [8.138150, 1.948148, -0.696524, -1.804186, -2.029814, -1.894431, -1.608573, -1.278067, -0.954593, -0.661746, -0.389450],
                  #'RMSD_COHESIVE_SE3': [0.0, -2.170],
@@ -188,7 +192,9 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                  #'RMSD_COHESIVE_SE8_RING': [0.0, -2.585449],
                  #'RMSD_COHESIVE_SE8_HELIX': [0.0, -2.380094],
                  #'RMSD_COHESIVE_SE8_LADDER': [0.0, -2.346071],
-                 #'MD_SE6': [0.0, 4.0],
-                 #'MD_SE8_RING': [0.0, 4.0]}
+                 #'MD_SE6_LOWT': [0.0],
+                 #'MD_SE6_HIGHT': [4.0],
+                 #'MD_SE8_RING_LOWT': [0.0],
+                 #'MD_SE8_RING_HIGHT': [4.0]}
 #result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA)
 #print(result)

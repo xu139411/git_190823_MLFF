@@ -19,7 +19,8 @@ from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
 indiv_low, indiv_up, parameters_GA, CRITERIA = read_control_config()
 # Retrieve the DFT training data into a dictionary
 training_data = read_training_data(parameters_GA['ELEMENT_NAME'])
-
+if len(CRITERIA) != len(training_data):
+    raise ValueError('number of criteria does not match the number of training data\n')
 # DEAP setup
 #   Minimize the fitness value
 #   Each individual is a list.
