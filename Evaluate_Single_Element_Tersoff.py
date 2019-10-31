@@ -9,8 +9,8 @@ import shutil
 import copy
 import time
 import logging
-logging_file = os.path.join(PATH_ROOT, 'logging.txt')
-logging.basicConfig(filename=logging_file, level=logging.WARNING)
+warning_file = os.path.join(PATH_ROOT, 'warning.txt')
+logging.basicConfig(filename=warning_file, level=logging.WARNING)
 # Third party imports: lammps
 import numpy as np
 import scoop
@@ -56,7 +56,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
     log_file_path = os.path.join(path_tmp, eval_label + '.log')
     while not os.path.exists(log_file_path):
         logging.warning('%s cannot read LAMMPS log file', str(job_id))
-        time.sleep(0.2)
+        time.sleep(0.1)
     if os.path.isfile(log_file_path):
         with open(log_file_path, 'r') as output:
             all_lines = output.readlines()
@@ -156,7 +156,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                 shutil.copy(lammps_file_name, path_eval)
 
         os.chdir(path_eval)
-        os.system('mpirun -np 1 lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        os.system('lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        time.sleep(0.1)
         #os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
 
