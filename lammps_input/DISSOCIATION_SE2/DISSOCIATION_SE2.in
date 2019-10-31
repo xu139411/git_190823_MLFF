@@ -16,12 +16,9 @@ neighbor        2.0 bin
 neigh_modify    every 10 delay 10
 timestep        1
 
-# Variable to loop over different structure files
-variable        file_name index 1.data 2.data 3.data 4.data 5.data 6.data 7.data 8.data 9.data 10.data 11.data 
-
 #Retrieve atom information
 box             tilt large
-read_data       ${file_name}
+read_data       1.data
 #Atom notation
 #1 Se
 
@@ -40,7 +37,384 @@ thermo_style    custom pe
 thermo          ${PotentialEnergyStep}
 variable        eng_atom equal pe/2
 run             0 
-
 print           "Predictions ${eng_atom}"
-next            file_name
-jump            DISSOCIATION_SE2.in
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       2.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       3.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       4.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       5.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       6.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       7.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       8.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       9.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       10.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"
+
+#==================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p 
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#Retrieve atom information
+box             tilt large
+read_data       11.data
+#Atom notation
+#1 Se
+
+#==================================================
+#Force field definition 
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+#==================================================
+#Variables are defined here
+variable        PotentialEnergyStep equal 1
+#==================================================
+#Here begins the simulations
+#define a global calculation for the potential energy
+thermo_style    custom pe 
+thermo          ${PotentialEnergyStep}
+variable        eng_atom equal pe/2
+run             0 
+print           "Predictions ${eng_atom}"

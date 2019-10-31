@@ -3,6 +3,7 @@
 # Data July 01, 2019
 #==================================================
 #   Initialize the program
+clear
 #   Set simulation box properties
 boundary        p p p
 units           metal
