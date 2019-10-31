@@ -5,6 +5,10 @@
 import random
 import pickle
 import os
+PATH_ROOT = os.path.abspath('.')
+import logging
+logging_file = os.path.join(PATH_ROOT, 'logging.txt')
+logging.basicConfig(filename=logging_file, level=logging.INFO)
 # Third party imports: Numpy, DEAP and SCOOP
 import numpy as np
 from deap import base, creator, tools
@@ -130,7 +134,7 @@ def main(checkpoint=None):
     hof.update(pop)
     #   Begin the evolution
     for g in range(start_gen+1, parameters_GA['MAX_GEN']+1):
-        print("-- GENERATION {0}".format(g))
+        logging.info('-- GENERATION %s', str(g))
         #   Select individuals for the next generation, hof is always included.
         #   hof[:] provides a normal list
         offspring = toolbox.select(pop, len(pop)-3) + hof[:]
@@ -168,7 +172,7 @@ def main(checkpoint=None):
             cp = dict(rndstate=random.getstate(),population=pop, generation=g,
                       halloffame=hof, logbook=logbook)
             #   Create the folder checkpoint, and dump the data
-            path_log = os.path.join(os.path.abspath('.'), 'checkpoint', '')
+            path_log = os.path.join(PATH_ROOT, 'checkpoint', '')
             cp_file_name = os.path.join(path_log, 'cp_'+str(g)+'.pkl')
             log_file_name = os.path.join(path_log, 'log_'+str(g)+'.txt')
             if 'checkpoint' in os.listdir('.'):
