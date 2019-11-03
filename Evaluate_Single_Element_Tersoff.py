@@ -8,6 +8,7 @@ PATH_ROOT = os.path.abspath('.')
 import shutil
 import copy
 import time
+import subprocess
 import logging
 warning_file = os.path.join(PATH_ROOT, 'warning.txt')
 logging.basicConfig(filename=warning_file, level=logging.WARNING)
@@ -156,7 +157,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                 shutil.copy(lammps_file_name, path_eval)
 
         os.chdir(path_eval)
-        os.system('lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        subprocess.call(['lmp_mpi', '-log', eval_label+'.log', '-screen', 'none', '-in', eval_label+'.in'])
+        #os.system('lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         time.sleep(0.1)
         #os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
