@@ -111,7 +111,8 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
 
 # The evaluate function
 def evaluate_single_element_Tersoff(individual, element_name=None,
-                                    training_data=None, criteria=None):
+                                    training_data=None, criteria=None,
+                                    fixed_value=None):
     #   Set up working directory
     job_id = id(scoop.worker)
     element_name = element_name[0]
@@ -127,7 +128,9 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     #   Create a force field file
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
-    #   ind_all is the complete parameter set
+    #   ind_all is the parameter set including the fixed values
+    for i in list(fixed_value.keys()):
+        ind.insert(i, fixed_value[i])
     ind_all = [1] + ind
     create_fffile(path_eval, element_name, ind_all)
 
@@ -157,8 +160,8 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                 shutil.copy(lammps_file_name, path_eval)
 
         os.chdir(path_eval)
-        subprocess.call(['lmp_mpi', '-log', eval_label+'.log', '-screen', 'none', '-in', eval_label+'.in'])
-        #os.system('lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
+        #subprocess.call(['lmp_mpi', '-log', eval_label+'.log', '-screen', 'none', '-in', eval_label+'.in'])
+        os.system('lmp_mpi -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         time.sleep(0.1)
         #os.system('lmp_serial -log ' + eval_label + '.log -screen none -in ' + eval_label + '.in')
         os.chdir(PATH_ROOT)
@@ -175,18 +178,18 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             return fitness_current,
 
         #For testing purpose
-#ind_henry = [0.349062129091, 0, 1.19864625442, 1.06060163186, -0.0396671926082, 1, 1, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
+#ind_henry = [0.349062129091, 1.19864625442, 1.06060163186, -0.0396671926082, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
 #ELEMENT_NAME = ['Se']
 #CRITERIA = {'RMSD_COHESIVE_SE2': [0.02, 0.1],
             #'DISSOCIATION_SE2': [0.2],
             #'RMSD_COHESIVE_SE3': [0.05, 0.25],
             #'RMSD_COHESIVE_SE6': [0.1, 0.05],
             #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
-            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.05],
-            #'RMSD_COHESIVE_SE8_LADDER': [0.2, 0.2],
+            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
+            #'RMSD_COHESIVE_SE8_LADDER': [0.6, 0.2],
             #'MD_SE6_LOWT': [0.3],
             #'MD_SE6_HIGHT': [0.8],
-            #'MD_SE8_RING_LOWT': [0.5],
+            #'MD_SE8_RING_LOWT': [0.6],
             #'MD_SE8_RING_HIGHT': [0.8]}
 #TRAINING_DATA = {'RMSD_COHESIVE_SE2': [0.0, -2.029814],
                  #'DISSOCIATION_SE2': [8.138150, 1.948148, -0.696524, -1.804186, -2.029814, -1.894431, -1.608573, -1.278067, -0.954593, -0.661746, -0.389450],
@@ -199,5 +202,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                  #'MD_SE6_HIGHT': [4.0],
                  #'MD_SE8_RING_LOWT': [0.0],
                  #'MD_SE8_RING_HIGHT': [4.0]}
-#result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA)
+#fixed_para = {1: 0, 5: 1, 6: 1}
+#result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA, fixed_value=fixed_para)
 #print(result)

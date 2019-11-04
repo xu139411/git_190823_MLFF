@@ -13,18 +13,18 @@ logging.basicConfig(filename=logging_file, level=logging.INFO)
 import numpy as np
 from deap import base, creator, tools
 from scoop import futures
-
 # Local library imports
 from Read_Functions import read_control_config
 from Read_Functions import read_training_data
 from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
 
-# Retrieve parameters: list, list, dictionary, dictionary
-indiv_low, indiv_up, parameters_GA, CRITERIA = read_control_config()
+# Retrieve parameters: dictionary, dictionary, dictionary
+PARAMETERS_FF_RANGE, parameters_GA, CRITERIA = read_control_config()
 # Retrieve the DFT training data into a dictionary
 training_data = read_training_data(parameters_GA['ELEMENT_NAME'])
 if len(CRITERIA) != len(training_data):
     raise ValueError('number of criteria does not match the number of training data\n')
+
 # DEAP setup
 #   Minimize the fitness value
 #   Each individual is a list.
@@ -45,23 +45,22 @@ toolbox = base.Toolbox()
 #   the force field parameters except m. Since the value of m is always
 #   1, it is not included in the individuals, but is added during the
 #   evaluation.
-toolbox.register("attr_gamma", random.uniform, indiv_low[0], indiv_up[0])
-toolbox.register("attr_lambda3", random.uniform, indiv_low[1], indiv_up[1])
-toolbox.register("attr_c", random.uniform, indiv_low[2], indiv_up[2])
-toolbox.register("attr_d", random.uniform, indiv_low[3], indiv_up[3])
-toolbox.register("attr_costheta0", random.uniform, indiv_low[4], indiv_up[4])
-toolbox.register("attr_n", random.uniform, indiv_low[5], indiv_up[5])
-toolbox.register("attr_beta", random.uniform, indiv_low[6], indiv_up[6])
-toolbox.register("attr_lambda2", random.uniform, indiv_low[7], indiv_up[7])
-toolbox.register("attr_B", random.uniform, indiv_low[8], indiv_up[8])
-toolbox.register("attr_R", random.uniform, indiv_low[9], indiv_up[9])
-toolbox.register("attr_D", random.uniform, indiv_low[10], indiv_up[10])
-toolbox.register("attr_lambda1", random.uniform, indiv_low[11], indiv_up[11])
-toolbox.register("attr_A", random.uniform, indiv_low[12], indiv_up[12])
+indiv_low, indiv_up = [], []
+fixed_para = {}
+for index, parameter in enumerate(list(PARAMETERS_FF_RANGE.keys())):
+    attr = "attr_" + parameter
+    toolbox.register(attr, random.uniform, PARAMETERS_FF_RANGE[parameter][0],
+        PARAMETERS_FF_RANGE[parameter][1])
+    if PARAMETERS_FF_RANGE[parameter][0] < PARAMETERS_FF_RANGE[parameter][1]:
+        indiv_low.append(PARAMETERS_FF_RANGE[parameter][0])
+        indiv_up.append(PARAMETERS_FF_RANGE[parameter][1])
+    else:
+        fixed_para[index] = PARAMETERS_FF_RANGE[parameter][0]
+
 toolbox.register("individual", tools.initCycle, creator.Individual,
-                     (toolbox.attr_gamma, toolbox.attr_lambda3,
+                     (toolbox.attr_gamma,
                       toolbox.attr_c, toolbox.attr_d, toolbox.attr_costheta0,
-                      toolbox.attr_n, toolbox.attr_beta, toolbox.attr_lambda2,
+                      toolbox.attr_lambda2,
                       toolbox.attr_B, toolbox.attr_R, toolbox.attr_D,
                       toolbox.attr_lambda1, toolbox.attr_A), n=1)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -72,7 +71,8 @@ if len(parameters_GA['ELEMENT_NAME']) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
                      element_name=parameters_GA['ELEMENT_NAME'],
                      training_data=training_data,
-                     criteria=CRITERIA)
+                     criteria=CRITERIA,
+                     fixed_value=fixed_para)
 else:
     pass
     #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
@@ -137,7 +137,7 @@ def main(checkpoint=None):
         logging.info('-- GENERATION %s', str(g))
         #   Select individuals for the next generation, hof is always included.
         #   hof[:] provides a normal list
-        offspring = toolbox.select(pop, len(pop)) 
+        offspring = toolbox.select(pop, len(pop))
         #   Clone the selected individuals
         offspring = list(toolbox.map(toolbox.clone, offspring))
 
