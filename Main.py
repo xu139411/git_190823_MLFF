@@ -137,7 +137,7 @@ def main(checkpoint=None):
         logging.info('-- GENERATION %s', str(g))
         #   Select individuals for the next generation, hof is always included.
         #   hof[:] provides a normal list
-        offspring = toolbox.select(pop, len(pop))
+        offspring = toolbox.select(pop, len(pop)-3) + hof[:]
         #   Clone the selected individuals
         offspring = list(toolbox.map(toolbox.clone, offspring))
 
