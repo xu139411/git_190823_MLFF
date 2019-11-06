@@ -10,7 +10,7 @@
 #   RANDOM_SEED     For random number generation. The same RANDOM_SEED will
 #                   provide identical results
 #   POP_SIZE        Size of the population
-#   MAX_GENERATION  Maximum number of generations for the current GA run
+#   MAX_GEN         Maximum number of generations for the current GA run
 #   CXPB            Crossover probability
 #   MUTPB           Mutation probability
 #   FREQ            Frequency to save the current state to a pickable file
@@ -24,38 +24,38 @@
 
 
 [FF Parameters]
-gamma = 0 100
-lambda3 = 0 5
-c = 0 100
-d = 0 100
-costheta0 = -5 5
-n = 0 100
-beta = 0 10
-lambda2 = 0 5
-B = 0 1000
-R = 2.82 3.8
-D_D = 0 1
-lambda1 = 0 15
-A = 0 5000
+gamma 0 100
+lambda3 0 0
+c 0 10
+d 0 10
+costheta0 -5 5
+n 1 1
+beta 1 1
+lambda2 0 5
+B 0 1000
+R 2.82 3.8
+D 0 1
+lambda1 0 15
+A 0 5000
 
 [Parameters for GA Work Flow]
-ELEMENT_NAME = Se
-RANDOM_SEED = 42
-POP_SIZE = 1000
-MAX_GENERATION = 1500
-CXPB = 0.7
-MUTPB = 0.3
-FREQ = 100
+ELEMENT_NAME Se
+RANDOM_SEED 42
+POP_SIZE 1000
+MAX_GEN 100
+CXPB 0.7
+MUTPB 0.3
+FREQ 20
 
 [Convergence criteria Se]
-RMSD_COHESIVE_SE2 = 0.02 0.1
-DISSOCIATION_SE2 = 0.2
-RMSD_COHESIVE_SE3 = 0.05 0.25
-RMSD_COHESIVE_SE6 = 0.1 0.05
-RMSD_COHESIVE_SE8_RING = 0.1 0.05
-RMSD_COHESIVE_SE8_HELIX = 0.05 0.05
-RMSD_COHESIVE_SE8_LADDER = 0.2 0.2
-MD_SE6_LOWT = 0.3
-MD_SE6_HIGHT = 0.8
-MD_SE8_RING_LOWT = 0.5
-MD_SE8_RING_HIGHT = 0.8
+RMSD_COHESIVE_SE2 0.02 0.1
+DISSOCIATION_SE2 0.2
+RMSD_COHESIVE_SE3 0.05 0.25
+RMSD_COHESIVE_SE6 0.1 0.05
+RMSD_COHESIVE_SE8_RING 0.1 0.05
+RMSD_COHESIVE_SE8_HELIX 0.05 0.06
+RMSD_COHESIVE_SE8_LADDER 0.6 0.2
+MD_SE6_LOWT 0.3
+MD_SE6_HIGHT 0.7
+MD_SE8_RING_LOWT 0.6
+MD_SE8_RING_HIGHT 0.8
