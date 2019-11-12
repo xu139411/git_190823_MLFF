@@ -1,0 +1,6 @@
+#   Training data for WSe2
+#   cohesive energy of WSe2; Equation of state of WSe2; ...
+#   MD steps of WSE2
+RMSD_COHESIVE_WSE2 0.0 -5.24438748
+EOS_WSE2 -15.697756 -15.710685 -15.720611 -15.727517 -15.731777 -15.73316243 -15.731834 -15.727839 -15.721332 -15.712275 -15.700761
+MD_WSE2_LOWT 0.0

@@ -129,6 +129,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
     #   ind_all is the parameter set including the fixed values
+    print(fixed_value)
     for i in list(fixed_value.keys()):
         ind.insert(i, fixed_value[i])
     ind_all = [1] + ind

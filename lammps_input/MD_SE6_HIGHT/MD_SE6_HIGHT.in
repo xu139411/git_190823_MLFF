@@ -47,7 +47,7 @@ variable        rmsd equal sqrt(c_c1[4])
 thermo_style    custom step pe v_rmsd
 thermo          ${MinimizeThermo}
 dump            d1 all custom ${MinimizeDump} minimize.dump id type x y z
-minimize        1e-8 1e-12 ${MinimizeStep} ${MinimizeStep}
+minimize        1e-6 1e-6 ${MinimizeStep} ${MinimizeStep}
 undump          d1
 
 #high temperature stability

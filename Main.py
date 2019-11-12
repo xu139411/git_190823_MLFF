@@ -17,13 +17,15 @@ from scoop import futures
 from Read_Functions import read_control_config
 from Read_Functions import read_training_data
 from Evaluate_Single_Element_Tersoff import evaluate_single_element_Tersoff
+from Evaluate_Two_Elements_Tersoff import evaluate_two_elements_Tersoff
 
 # Retrieve parameters: dictionary, dictionary, dictionary
-PARAMETERS_FF_RANGE, parameters_GA, CRITERIA = read_control_config()
+ELEMENT_NAME, PARAMETERS_FF_RANGE, PARAMETERS_GA, CRITERIA,\
+OPTIMIZED_PARAMETERS = read_control_config()
 # Retrieve the DFT training data into a dictionary
-training_data = read_training_data(parameters_GA['ELEMENT_NAME'])
-if len(CRITERIA) != len(training_data):
-    raise ValueError('number of criteria does not match the number of training data\n')
+training_data = read_training_data(ELEMENT_NAME)
+if list(CRITERIA.keys()) != list(training_data.keys()):
+    raise ValueError('Criteria does not match with the training data\n')
 
 # DEAP setup
 #   Minimize the fitness value
@@ -39,12 +41,17 @@ toolbox = base.Toolbox()
 #   Each attribute is randomly chosen according to the range specified
 #   in the file GA_control.txt.
 #   Moreover, there are parameters that have constraints:
-#   2.82 < R< 3.8; 0 < D < R-2.81821; lambda2 < lambda1 < 2 * lambda2
+#   2.82 < R< 3.8; 0 < D < R-2.81821; lambda2 < lambda1 < 3 * lambda2
 #   A > B.
 #   The following codes register a population of individuals with all
 #   the force field parameters except m. Since the value of m is always
 #   1, it is not included in the individuals, but is added during the
 #   evaluation.
+#   Parameters other than m can also be spefied as a fixed value. When
+#   registering the individual, the code will register parameters that are
+#   not fixed. Parameters that are fixed will be stored in a dictionary called
+#   fixed_para{}, whose keys are the indices of those parameters according to
+#   the Tersoff parameter sequence.
 indiv_low, indiv_up = [], []
 fixed_para = {}
 for index, parameter in enumerate(list(PARAMETERS_FF_RANGE.keys())):
@@ -56,26 +63,31 @@ for index, parameter in enumerate(list(PARAMETERS_FF_RANGE.keys())):
         indiv_up.append(PARAMETERS_FF_RANGE[parameter][1])
     else:
         fixed_para[index] = PARAMETERS_FF_RANGE[parameter][0]
-
-toolbox.register("individual", tools.initCycle, creator.Individual,
-                     (toolbox.attr_gamma,
-                      toolbox.attr_c, toolbox.attr_d, toolbox.attr_costheta0,
-                      toolbox.attr_lambda2,
-                      toolbox.attr_B, toolbox.attr_R, toolbox.attr_D,
-                      toolbox.attr_lambda1, toolbox.attr_A), n=1)
+attr = [toolbox.attr_gamma, toolbox.attr_lambda3, toolbox.attr_c, toolbox.attr_d,
+        toolbox.attr_costheta0, toolbox.attr_n, toolbox.attr_beta, toolbox.attr_lambda2,
+        toolbox.attr_B, toolbox.attr_R, toolbox.attr_D, toolbox.attr_lambda1,
+        toolbox.attr_A]
+for _ in list(fixed_para.keys())[::-1]:
+    del attr[_]
+attr = tuple(attr)
+toolbox.register("individual", tools.initCycle, creator.Individual, attr, n=1)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 #   Operator registration
 #   Register the goal / fitness function
-if len(parameters_GA['ELEMENT_NAME']) == 1:
+if len(ELEMENT_NAME) == 1:
     toolbox.register("evaluate", evaluate_single_element_Tersoff,
-                     element_name=parameters_GA['ELEMENT_NAME'],
+                     element_name=ELEMENT_NAME,
                      training_data=training_data,
                      criteria=CRITERIA,
                      fixed_value=fixed_para)
 else:
-    pass
-    #toolbox.register("evaluate", evaluate_two_elements_Tersoff)
+    toolbox.register("evaluate", evaluate_two_elements_Tersoff,
+                     element_name=ELEMENT_NAME,
+                     training_data=training_data,
+                     criteria=CRITERIA,
+                     fixed_value=fixed_para,
+                     optimized_parameters=OPTIMIZED_PARAMETERS)
 
 #   Register the crossover operator. Simulated Binary Bounded algorithm
 #   is used with an eta value of 20 and bounds for parameters.
@@ -115,10 +127,10 @@ def main(checkpoint=None):
         logbook = cp["logbook"]
     else:
         #   Start a new evolution with a specified random_seed
-        random.seed(parameters_GA['RANDOM_SEED'])
+        random.seed(PARAMETERS_GA['RANDOM_SEED'])
         #   Create an initial population of POP_SIZE individuals (where)
         #   Each individual is a list of 13 force field parameters
-        pop = toolbox.population(n=parameters_GA['POP_SIZE'])
+        pop = toolbox.population(n=PARAMETERS_GA['POP_SIZE'])
         #   Starting generation
         start_gen = 0
         #   Hall of fame object that stores the best three individuals thus far
@@ -133,7 +145,7 @@ def main(checkpoint=None):
     #   Find the Hall of fame individuals
     hof.update(pop)
     #   Begin the evolution
-    for g in range(start_gen+1, parameters_GA['MAX_GEN']+1):
+    for g in range(start_gen+1, PARAMETERS_GA['MAX_GEN']+1):
         logging.info('-- GENERATION %s', str(g))
         #   Select individuals for the next generation, hof is always included.
         #   hof[:] provides a normal list
@@ -144,14 +156,14 @@ def main(checkpoint=None):
         #   Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
             #   Cross two individuals with probability CXPB
-            if random.random() < parameters_GA['CXPB']:
+            if random.random() < PARAMETERS_GA['CXPB']:
                 toolbox.mate(child1, child2)
                 #   Fitness values of the children must be recalculated
                 del child1.fitness.values
                 del child2.fitness.values
         for mutant in offspring:
             #   Mutate an individual with probability MUTPB
-            if random.random() < parameters_GA['MUTPB']:
+            if random.random() < PARAMETERS_GA['MUTPB']:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
         #   Evaluate the individuals with invalid fitnesses
@@ -167,7 +179,7 @@ def main(checkpoint=None):
         record = stats.compile(pop)
         logbook.record(gen=g, evals=len(invalid_ind), **record)
         #   Save the optimization every FREQ generation
-        if g % parameters_GA['FREQ'] == 0:
+        if g % PARAMETERS_GA['FREQ'] == 0:
             #   Fill the dictionary using the dict(key=value[, ...]) constructor
             cp = dict(rndstate=random.getstate(),population=pop, generation=g,
                       halloffame=hof, logbook=logbook)
@@ -206,5 +218,6 @@ def main(checkpoint=None):
     print("-- End of evolution --")
 
 if __name__ == "__main__":
+    #pass
     main()
     #main('./cp_600.pkl')
