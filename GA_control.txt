@@ -1,4 +1,4 @@
-[Comments]
+[ Comments ]
 #   Parameters for the genetic algorithm (GA) that finds the parameters of
 #   Tersoff force field for Transition Metal Dichalcogenides (TMDCs).
 
@@ -22,15 +22,15 @@
 #   RMSD_COHESIVE_SE2: RMSD < 0.02A; |COHESIVE ENERGY DIFFERENCE| < 0.1 eV/atom
 #   DISSOCIATION: |ENERGY DIFFERENCE| < 0.2
 
-[Element W Se]
+[ Element Se ]
 
-[Optimized Parameters W W]
+[ Optimized Parameters W W ]
 1 0.00188227 0.45876 2.14969 0.17126 0.2778 1 1 1.411246 306.49968 3.5 0.3 2.719584 3401.474424
 
-[Optimized Parameters Se Se]
+[ Optimized Parameters Se Se ]
 1 0.349062129091 0 1.19864625442 1.06060163186 -0.0396671926082 1 1 1.95864203232 880.038350037 3.41105925109 0.376880167844 2.93792248396 4929.6960118
 
-[FF Parameters Range Se]
+[ FF Parameters Range Se ]
 gamma 0 100
 lambda3 0 1
 c 0 10
@@ -44,9 +44,9 @@ R 2.82 3.8
 D 0 1
 lambda1 0 15
 A 0 5000
-[END]
+[ END ]
 
-[FF Parameters Range W Se]
+[ FF Parameters Range W Se ]
 gamma 0 100
 lambda3 0 0
 c 0 10
@@ -60,27 +60,27 @@ R 2.82 3.8
 D 0 1
 lambda1 0 15
 A 0 5000
-[END]
+[ END ]
 
-[Parameters for GA Work Flow Se]
+[ Parameters for GA Work Flow Se ]
 RANDOM_SEED 42
 POP_SIZE 100
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
 FREQ 20
-[END]
+[ END ]
 
-[Parameters for GA Work Flow W Se]
+[ Parameters for GA Work Flow W Se ]
 RANDOM_SEED 42
 POP_SIZE 100
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
 FREQ 20
-[END]
+[ END ]
 
-[Convergence Criteria Se]
+[ Convergence Criteria Se ]
 RMSD_COHESIVE_SE2 0.02 0.1
 DISSOCIATION_SE2 0.2
 RMSD_COHESIVE_SE3 0.05 0.25
@@ -92,10 +92,15 @@ MD_SE6_LOWT 0.3
 MD_SE6_HIGHT 0.7
 MD_SE8_RING_LOWT 0.6
 MD_SE8_RING_HIGHT 0.8
-[END]
+[ END ]
 
-[Convergence Criteria W Se]
+[ Convergence Criteria W Se ]
 RMSD_COHESIVE_WSE2 0.02 1.0
 EOS_WSE2 0.005
+PHONON_NO_NEGATIVE_FREQUENCIES -0.3
+PHONON_GAMMA_POINT_ERROR 0.4
+PHONON_BAND_GAP_ERROR 0.2
+PHONON_AVE_ERROR_ACOUSTIC 1
+PHONON_AVE_ERROR_OPTICAL 2
 MD_WSE2_LOWT 0.5
-[END]
+[ END ]

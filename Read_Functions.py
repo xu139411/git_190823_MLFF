@@ -16,27 +16,29 @@ def read_control_config():
     path_tmp = os.path.join(os.path.abspath('.'), 'GA_control.txt')
     with open(path_tmp, 'r') as input_file:
         all_lines = input_file.readlines()
-        if '[Element Se]\n' in all_lines:
-            element_name = ['Se']
-            kw_switch1 = '[FF Parameters Range Se]\n'
-            kw_switch2 = '[Parameters for GA Work Flow Se]\n'
-            kw_switch3 = '[Convergence Criteria Se]\n'
-            kw_switch4 = False
-            kw_switch5 = False
-        elif '[Element W Se]\n' in all_lines:
-            element_name = ['W', 'Se']
-            kw_switch1 = '[FF Parameters Range W Se]\n'
-            kw_switch2 = '[Parameters for GA Work Flow W Se]\n'
-            kw_switch3 = '[Convergence Criteria W Se]\n'
-            kw_switch4 = '[Optimized Parameters W W]\n'
-            kw_switch5 = '[Optimized Parameters Se Se]\n'
-        else:
-            raise ValueError('Element(s) needs to be specified\n')
+        #   Get the element names and the corresponding section names
+        for line in all_lines:
+            if '[ Element' in line:
+                if len(line.split()) == 4:
+                    element_name = [line.split()[2]]
+                    kw_switch1 = '[ FF Parameters Range '+element_name[0]+' ]\n'
+                    kw_switch2 = '[ Parameters for GA Work Flow '+element_name[0]+' ]\n'
+                    kw_switch3 = '[ Convergence Criteria '+element_name[0]+' ]\n'
+                    kw_switch4 = False
+                    kw_switch5 = False
+                elif len(line.split()) == 5:
+                    element_name = [line.split()[2], line.split()[3]]
+                    kw_switch1 = '[ FF Parameters Range '+element_name[0]+' '+element_name[1]+' ]\n'
+                    kw_switch2 = '[ Parameters for GA Work Flow '+element_name[0]+' '+element_name[1]+' ]\n'
+                    kw_switch3 = '[ Convergence Criteria '+element_name[0]+' '+element_name[1]+' ]\n'
+                    kw_switch4 = '[ Optimized Parameters '+element_name[0]+' '+element_name[0]+' ]\n'
+                    kw_switch5 = '[ Optimized Parameters '+element_name[1]+' '+element_name[1]+' ]\n'
+        #   Get the parameters
         for line in all_lines:
             if '#' in line or line == '\n':
                 switch = 0
                 continue
-            elif line == '[END]\n':
+            elif line == '[ END ]\n':
                 switch = 0
                 continue
             elif line == kw_switch1:
