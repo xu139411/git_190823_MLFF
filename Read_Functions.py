@@ -2,6 +2,8 @@
 # Standard library imports
 import configparser
 import os
+# Third party imports: Numpy
+import numpy as np
 
 #   Read FF parameter ranges, hyperparameters of GA and convergence criteria
 #   into dictionaries
@@ -81,13 +83,21 @@ def read_training_data(element_name):
         element_name = element_name[0]
     else:
         element_name = element_name[0] + element_name[1]
+        path_phonon = os.path.join(os.path.abspath('.'), 'training_data',
+                                   element_name + '2_phonon.txt')
+        phonon_data = np.loadtxt(path_phonon)
+
     path_tmp = os.path.join(os.path.abspath('.'), 'training_data',
                             element_name + '.txt')
+
     with open(path_tmp, 'r') as input_file:
         all_lines = input_file.readlines()
         for line in all_lines:
             if '#' in line or line == '\n':
                 continue
+            elif 'PHONON' in line:
+                line_split = line.split()
+                training_data[line_split[0]] = phonon_data[:][3:]
             else:
                 line_split = line.split()
                 training_data[line_split[0]] = list(map(float, line_split[1:]))
