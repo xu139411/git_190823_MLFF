@@ -112,16 +112,16 @@ def calculate_sse_proceed_phonon(path_tmp, job_id, eval_label, training_data, cr
         #print(eval_label, ', abs_error: ', abs_error, abs_error < criteria[eval_label][0])
         return sse, abs_error < criteria[eval_label][0]
     elif eval_label == 'PHONON_AVE_ACOUSTIC':
-        abs_error = predictions[:,4:7] - training_data[eval_label][:,3:6]
+        abs_error = np.absolute(predictions[:,4:7] - training_data[eval_label][:,3:6])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
-        #print(eval_label, ', sse: ', sse, mae < criteria[eval_label][0])
+        print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
     elif eval_label == 'PHONON_AVE_OPTICAL':
-        abs_error = predictions[:,7:] - training_data[eval_label][:,6:]
+        abs_error = np.absolute(predictions[:,7:] - training_data[eval_label][:,6:])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
-        #print(eval_label, ', sse: ', sse, mae < criteria[eval_label][0])
+        print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
 
 #   Calculate the Error sum of squares and decide whether or not to proceed the
