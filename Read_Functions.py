@@ -97,7 +97,7 @@ def read_training_data(element_name):
                 continue
             elif 'PHONON' in line:
                 line_split = line.split()
-                training_data[line_split[0]] = phonon_data[:, 3:]
+                training_data[line_split[0]] = phonon_data
             else:
                 line_split = line.split()
                 training_data[line_split[0]] = list(map(float, line_split[1:]))

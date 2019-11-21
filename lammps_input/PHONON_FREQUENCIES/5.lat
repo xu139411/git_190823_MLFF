@@ -1,0 +1,24 @@
+# Converted from CONTCAR
+
+# 3 atoms
+# 2 atom types
+#
+#   W   Se 
+#   1    2 
+#
+lattice 		 custom     1.000000 spacing     3.321666     2.876648    13.004520 a1     3.321666     0.000000     0.000000 &
+       			                     a2    -1.660833     2.876648     0.000000 &
+       			                     a3     0.000000     0.000000    13.004520 &
+ 			 basis     0.333333     0.666667     0.250000 &
+ 			 basis     0.666667     0.333333     0.379179 &
+ 			 basis     0.666667     0.333333     0.120821 
+
+region box prism 0 1 0 1 0 1    -0.500000     0.000000     0.000000 units lattice
+create_box 		 2 box
+create_atoms 		 2 box &
+ 			 basis 1 1 &
+ 			 basis 2 2 &
+ 			 basis 3 2
+mass 1  183.8400
+mass 2   78.9600
+

@@ -47,13 +47,13 @@ A 0 5000
 [ END ]
 
 [ FF Parameters Range W Se ]
-gamma 0 100
-lambda3 0 0
+gamma 0 10
+lambda3 -0.1 0.1
 c 0 10
 d 0 10
 costheta0 -5 5
-n 1 1
-beta 1 1
+n 0 2
+beta 0 2
 lambda2 0 5
 B 0 1000
 R 2.82 3.8
@@ -64,7 +64,7 @@ A 0 5000
 
 [ Parameters for GA Work Flow Se ]
 RANDOM_SEED 42
-POP_SIZE 100
+POP_SIZE 1000
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
@@ -73,7 +73,7 @@ FREQ 20
 
 [ Parameters for GA Work Flow W Se ]
 RANDOM_SEED 42
-POP_SIZE 100
+POP_SIZE 1000
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
