@@ -72,6 +72,16 @@ for _ in list(fixed_para.keys())[::-1]:
 attr = tuple(attr)
 toolbox.register("individual", tools.initCycle, creator.Individual, attr, n=1)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+#   Register for guess individuals
+def readIndividual(icls, content):
+    return icls(content)
+def readPopulation(pcls, ind_init, filename):
+    with open(filename, "r") as pop_file:
+        contents = np.loadtxt(filename)
+        contents = contents.tolist()
+    return pcls(ind_init(c) for c in contents)
+toolbox.register("individual_guess", readIndividual, creator.Individual)
+toolbox.register("population_guess", readPopulation, list, toolbox.individual_guess)
 
 #   Operator registration
 #   Register the goal / fitness function
@@ -115,7 +125,7 @@ stats.register("max", np.max)
 toolbox.register("map", futures.map) # Stay with scoop
 
 # Main function
-def main(checkpoint=None):
+def main(checkpoint=None, guess=None):
     if checkpoint:
         #   A file name has been given, then load the data from the file
         with open(checkpoint, "rb") as cp_file:
@@ -125,6 +135,18 @@ def main(checkpoint=None):
         start_gen = cp["generation"]
         hof = cp["halloffame"]
         logbook = cp["logbook"]
+    elif guess:
+        #   A file name has been given, then load the data from the file
+        pop_guess = toolbox.population_guess(guess)
+        #   Generate a part of the population with a specified random_seed
+        random.seed(PARAMETERS_GA['RANDOM_SEED'])
+        random_size = PARAMETERS_GA['POP_SIZE'] - len(pop_guess)
+        pop_random = toolbox.population(n=random_size)
+        pop = pop_guess + pop_random
+        print(pop)
+        start_gen = 0
+        hof = tools.HallOfFame(1)
+        logbook = tools.Logbook()
     else:
         #   Start a new evolution with a specified random_seed
         random.seed(PARAMETERS_GA['RANDOM_SEED'])
@@ -219,5 +241,5 @@ def main(checkpoint=None):
 
 if __name__ == "__main__":
     #pass
-    main()
+    main(guess='./best/result_hof.txt')
     #main('./cp_600.pkl')

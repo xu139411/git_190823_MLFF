@@ -115,13 +115,13 @@ def calculate_sse_proceed_phonon(path_tmp, job_id, eval_label, training_data, cr
         abs_error = np.absolute(predictions[:,4:7] - training_data[eval_label][:,3:6])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
-        print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
+        #print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
     elif eval_label == 'PHONON_AVE_OPTICAL':
         abs_error = np.absolute(predictions[:,7:] - training_data[eval_label][:,6:])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
-        print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
+        #print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
 
 #   Calculate the Error sum of squares and decide whether or not to proceed the
@@ -200,7 +200,7 @@ def evaluate_two_elements_Tersoff(individual, element_name=None,
                                     fixed_value=None,
                                     optimized_parameters=None):
     #   Set up working directory
-    job_id = 0 #id(scoop.worker)
+    job_id = 0#id(scoop.worker)
     path_eval = os.path.join(PATH_ROOT, 'results_'+element_name[0]+element_name[1], str(job_id), '')
     try:
         if os.path.isdir(path_eval):
@@ -282,6 +282,7 @@ def evaluate_two_elements_Tersoff(individual, element_name=None,
             continue
         else:
             fitness_current = fitness_current + sse
+            print(fitness_current)
             return fitness_current,
 
 #   For testing purpose
@@ -289,17 +290,18 @@ if __name__ == '__main__':
 
     #path_tmp = PATH_ROOT
     element_name = ['W', 'Se']
-    individual = [1.83073271913, -0.0021970964964, 1.36806361463, 0.629172073364, 0.522704731142, 1.00558350622, 0.0792382145959, 1.34915995464, 175.933838187, 3.26742070742, 0.763969153161, 3.21479473302, 4350.90479176]
+    individual_henry = [1.83073271913, -0.0021970964964, 1.36806361463, 0.629172073364, 0.522704731142, 1.00558350622, 0.0792382145959, 1.34915995464, 175.933838187, 3.26742070742, 0.763969153161, 3.21479473302, 4350.90479176]
+    individual = [2.3448008275107064, -0.0049723633194473284, 0.40730344696714893, 4.769066488731036, -0.1837166135235218, 0.31003740750915226, 1.7397045506403468, 0.07734827726829908, 19.943525364704765, 2.905169989303904, 0.3661985603110443, 4.5189508201638535, 3844.342121362252]
     optimized_parameters = [[1, 0.00188227, 0.45876, 2.14969, 0.17126, 0.2778, 1, 1, 1.411246, 306.49968, 3.5, 0.3, 2.719584, 3401.474424],
                             [1, 0.349062129091, 0, 1.19864625442, 1.06060163186, -0.0396671926082, 1, 1, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]]
     #create_fffile(path_tmp, element_name, individual, optimized_parameters)
-    criteria = {'RMSD_COHESIVE_WSE2': [0.07, 1.0],
-                'EOS_WSE2': [0.007],
+    criteria = {'RMSD_COHESIVE_WSE2': [0.02, 1.0],
+                'EOS_WSE2': [0.005],
                 'PHONON_FREQUENCIES': [-0.3],
                 'PHONON_GAMMA_POINT': [0.4],
                 'PHONON_BAND_GAP': [0.2],
-                'PHONON_AVE_ACOUSTIC': [1],
-                'PHONON_AVE_OPTICAL': [2],
+                'PHONON_AVE_ACOUSTIC': [0.2],
+                'PHONON_AVE_OPTICAL': [0.4],
                 'MD_WSE2_LOWT': [0.5]}
     path_phonon = os.path.join(os.path.abspath('.'), 'training_data',
                                element_name[0]+element_name[1]+'2_phonon.txt')
