@@ -143,7 +143,6 @@ def main(checkpoint=None, guess=None):
         random_size = PARAMETERS_GA['POP_SIZE'] - len(pop_guess)
         pop_random = toolbox.population(n=random_size)
         pop = pop_guess + pop_random
-        print(pop)
         start_gen = 0
         hof = tools.HallOfFame(1)
         logbook = tools.Logbook()
@@ -171,7 +170,7 @@ def main(checkpoint=None, guess=None):
         logging.info('-- GENERATION %s', str(g))
         #   Select individuals for the next generation, hof is always included.
         #   hof[:] provides a normal list
-        offspring = toolbox.select(pop, len(pop)-3) + hof[:]
+        offspring = toolbox.select(pop, len(pop)-len(hof)) + hof[:]
         #   Clone the selected individuals
         offspring = list(toolbox.map(toolbox.clone, offspring))
 

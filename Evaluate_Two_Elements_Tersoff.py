@@ -200,7 +200,7 @@ def evaluate_two_elements_Tersoff(individual, element_name=None,
                                     fixed_value=None,
                                     optimized_parameters=None):
     #   Set up working directory
-    job_id = 0#id(scoop.worker)
+    job_id = id(scoop.worker)
     path_eval = os.path.join(PATH_ROOT, 'results_'+element_name[0]+element_name[1], str(job_id), '')
     try:
         if os.path.isdir(path_eval):
