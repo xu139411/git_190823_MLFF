@@ -87,6 +87,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
             predictions = np.array(predictions)
             predictions = predictions[1:] - predictions[0]
             abs_error = np.absolute(predictions - training_data[eval_label][1:] + training_data[eval_label][0])
+            max_abs_error = np.max(abs_error)
         else:
             predictions = np.array(predictions)
             abs_error = np.absolute(predictions - training_data[eval_label])
@@ -104,7 +105,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
             else:
                 return sse, False
         elif 'TRANSITION_PATH' in eval_label:
-            if mae < criteria[eval_label][0]:
+            if max_abs_error < criteria[eval_label][0]:
                 return sse, True
             else:
                 return sse, False
@@ -194,6 +195,7 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
 #   For testing purpose
 if __name__ == '__main__':
     ind_henry = [0.349062129091, 0, 1.19864625442, 1.06060163186, -0.0396671926082, 1, 1, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
+    ind_trial = [3.9349214091113076, 0.4222861426544582, 7.8484525631732325, 8.114512113497252, -3.7615544430289107, 0.6693918364032599, 0.47181144590398555, 1.7062809592892105, 272.488527874936, 3.5221542542852435, 0.30344731963196897, 3.2087440466792434, 1600.0756347740457]
     ELEMENT_NAME = ['Se']
     CRITERIA = {'TRANSITION_PATH_SE3': [0.4]}
                 #'RMSD_COHESIVE_SE2': [0.02, 0.1],
@@ -220,5 +222,5 @@ if __name__ == '__main__':
                  #'MD_SE8_RING_LOWT': [0.0],
                  #'MD_SE8_RING_HIGHT': [4.0]}
     fixed_para = {}
-    result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA, fixed_value=fixed_para)
+    result = evaluate_single_element_Tersoff(ind_trial, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA, fixed_value=fixed_para)
     print(result)
