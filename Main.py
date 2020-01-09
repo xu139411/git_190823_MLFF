@@ -155,7 +155,7 @@ def main(checkpoint=None, guess=None):
         #   Starting generation
         start_gen = 0
         #   Hall of fame object that stores the best three individuals thus far
-        hof = tools.HallOfFame(3)
+        hof = tools.HallOfFame(1)
         #   Create a logbook
         logbook = tools.Logbook()
 
@@ -239,6 +239,7 @@ def main(checkpoint=None, guess=None):
     print("-- End of evolution --")
 
 if __name__ == "__main__":
+    main()
     #pass
-    main(guess='./best/result_hof.txt')
+    #main(guess='./best/result_hof.txt')
     #main('./cp_600.pkl')
