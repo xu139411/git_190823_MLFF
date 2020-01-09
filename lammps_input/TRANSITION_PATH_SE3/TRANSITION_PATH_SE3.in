@@ -1,0 +1,44 @@
+# Transition pathway of Se3
+# By: Xu, Zhang
+# January 08, 2019
+#============================================================
+# Initialize the program
+clear
+
+# Set simulation box properties
+boundary        p p p
+units           metal
+atom_style      atomic
+processors      1 1 1
+
+# Other settings
+neighbor        2.0 bin
+neigh_modify    every 10 delay 10
+timestep        1
+
+#============================================================
+# Variables are defined here
+variable        PotentialEnergyStep equal 1
+variable        eng equal pe
+variable        name loop 11
+
+#============================================================
+# Here begins a loop simulation
+# Retrieve atom information
+box             tilt large
+read_data       Se3_${name}.data
+# Atom notation
+# 1 Se
+
+# Force field definition
+pair_style      tersoff
+pair_coeff      * * Se.tersoff Se
+
+# Thermo output is defined here
+thermo_style    custom pe
+thermo          ${PotentialEnergyStep}
+
+run             0
+print           "Predictions ${eng}"
+next            name
+jump            TRANSITION_PATH_SE3.in

@@ -1,0 +1,20 @@
+# LAMMPS Input data converted from Gaussian output
+
+3 atoms
+1 atom types
+
+-20.000000    20.000000    xlo xhi
+-20.000000    20.000000    ylo yhi
+-20.000000    20.000000    zlo zhi
+
+0.000000    0.000000    0.000000    xy xz yz
+
+Masses
+
+1    78.960000
+
+Atoms
+
+1 1 0.0 0.0 1.227672395
+2 1 0.0 1.942546259 -0.613836195
+3 1 0.0 -1.942546259 -0.613836195

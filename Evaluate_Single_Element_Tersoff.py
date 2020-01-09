@@ -67,6 +67,8 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
                         predictions = list(map(float, line.split()[1:]))
                     elif 'DISSOCIATION' in eval_label:
                         predictions.append(float(line.split()[1]))
+                    elif 'TRANSITION_PATH' in eval_label:
+                        predictions.append(float(line.split()[1]))
                     elif 'MD' in eval_label:
                         predictions = list(map(float, line.split()[1:]))
                     else:
@@ -78,9 +80,16 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
         return sse_max, False
     elif len(predictions) != np.shape(training_data[eval_label])[0] and 'DISSOCIATION' in eval_label:
         return sse_max, False
+    elif len(predictions) != np.shape(training_data[eval_label])[0] and 'TRANSITION_PATH' in eval_label:
+        return sse_max, False
     else:
-        predictions = np.array(predictions)
-        abs_error = np.absolute(predictions - training_data[eval_label])
+        if 'TRANSITION_PATH' in eval_label:
+            predictions = np.array(predictions)
+            predictions = predictions[1:] - predictions[0]
+            abs_error = np.absolute(predictions - training_data[eval_label][1:] + training_data[eval_label][0])
+        else:
+            predictions = np.array(predictions)
+            abs_error = np.absolute(predictions - training_data[eval_label])
         sse = np.sum(np.square(abs_error))
         sse = min(sse_max, sse)
         mae = np.mean(abs_error)
@@ -90,6 +99,11 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
             else:
                 return sse, False
         elif 'DISSOCIATION' in eval_label:
+            if mae < criteria[eval_label][0]:
+                return sse, True
+            else:
+                return sse, False
+        elif 'TRANSITION_PATH' in eval_label:
             if mae < criteria[eval_label][0]:
                 return sse, True
             else:
@@ -129,7 +143,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
     #   Deep copy to avoid changing the individual list
     ind = copy.deepcopy(individual)
     #   ind_all is the parameter set including the fixed values
-    print(fixed_value)
     for i in list(fixed_value.keys()):
         ind.insert(i, fixed_value[i])
     ind_all = [1] + ind
@@ -178,21 +191,24 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
             fitness_current = fitness_current + sse
             return fitness_current,
 
-        #For testing purpose
-#ind_henry = [0.349062129091, 1.19864625442, 1.06060163186, -0.0396671926082, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
-#ELEMENT_NAME = ['Se']
-#CRITERIA = {'RMSD_COHESIVE_SE2': [0.02, 0.1],
-            #'DISSOCIATION_SE2': [0.2],
-            #'RMSD_COHESIVE_SE3': [0.05, 0.25],
-            #'RMSD_COHESIVE_SE6': [0.1, 0.05],
-            #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
-            #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
-            #'RMSD_COHESIVE_SE8_LADDER': [0.6, 0.2],
-            #'MD_SE6_LOWT': [0.3],
-            #'MD_SE6_HIGHT': [0.8],
-            #'MD_SE8_RING_LOWT': [0.6],
-            #'MD_SE8_RING_HIGHT': [0.8]}
-#TRAINING_DATA = {'RMSD_COHESIVE_SE2': [0.0, -2.029814],
+#   For testing purpose
+if __name__ == '__main__':
+    ind_henry = [0.349062129091, 0, 1.19864625442, 1.06060163186, -0.0396671926082, 1, 1, 1.95864203232, 880.038350037, 3.41105925109, 0.376880167844, 2.93792248396, 4929.6960118]
+    ELEMENT_NAME = ['Se']
+    CRITERIA = {'TRANSITION_PATH_SE3': [0.4]}
+                #'RMSD_COHESIVE_SE2': [0.02, 0.1],
+                #'DISSOCIATION_SE2': [0.2],
+                #'RMSD_COHESIVE_SE3': [0.05, 0.25],
+                #'RMSD_COHESIVE_SE6': [0.1, 0.05],
+                #'RMSD_COHESIVE_SE8_RING': [0.1, 0.05],
+                #'RMSD_COHESIVE_SE8_HELIX': [0.05, 0.06],
+                #'RMSD_COHESIVE_SE8_LADDER': [0.6, 0.2],
+                #'MD_SE6_LOWT': [0.3],
+                #'MD_SE6_HIGHT': [0.8],
+                #'MD_SE8_RING_LOWT': [0.6],
+                #'MD_SE8_RING_HIGHT': [0.8]}
+    TRAINING_DATA = {'TRANSITION_PATH_SE3': [-10.400714, -9.602875, -8.601496, -7.214531, -6.092061, -5.233269, -5.225650, -5.733959, -6.175055, -6.926634, -7.572948]}
+                 #'RMSD_COHESIVE_SE2': [0.0, -2.029814],
                  #'DISSOCIATION_SE2': [8.138150, 1.948148, -0.696524, -1.804186, -2.029814, -1.894431, -1.608573, -1.278067, -0.954593, -0.661746, -0.389450],
                  #'RMSD_COHESIVE_SE3': [0.0, -2.170],
                  #'RMSD_COHESIVE_SE6': [0.0, -2.521578],
@@ -203,6 +219,6 @@ def evaluate_single_element_Tersoff(individual, element_name=None,
                  #'MD_SE6_HIGHT': [4.0],
                  #'MD_SE8_RING_LOWT': [0.0],
                  #'MD_SE8_RING_HIGHT': [4.0]}
-#fixed_para = {1: 0, 5: 1, 6: 1}
-#result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA, fixed_value=fixed_para)
-#print(result)
+    fixed_para = {}
+    result = evaluate_single_element_Tersoff(ind_henry, element_name=ELEMENT_NAME,training_data=TRAINING_DATA, criteria=CRITERIA, fixed_value=fixed_para)
+    print(result)
