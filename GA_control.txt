@@ -1,12 +1,13 @@
 [ Comments ]
-#   Parameters for the genetic algorithm (GA) that finds the parameters of
+#   Parameters for the genetic algorithm (GA) optimization of
 #   Tersoff force field for Transition Metal Dichalcogenides (TMDCs).
 
-#   I. Lower and upper bounds for force field parameters
+#   I. [ Element ] defines whether it is single or two-elements optimization
+#   For W-Se, the optimized parameters for W-W and Se-Se are required.
 
-#   II. Parameters that control the GA work flow
-#   ELEMENT_NUM     Single-element or two-elements optimizations (single/two)
-#   ELEMENT_NAME    Name of the element
+#   II. Lower and upper bounds for force field parameters
+
+#   III. Parameters that control the GA work flow for Se and W-Se
 #   RANDOM_SEED     For random number generation. The same RANDOM_SEED will
 #                   provide identical results
 #   POP_SIZE        Size of the population
@@ -15,12 +16,44 @@
 #   MUTPB           Mutation probability
 #   FREQ            Frequency to save the current state to a pickable file
 
-#   III. Parameters that control the evaluation functions
-
-#   IV. Convergence criteria for Se
+#   IV. Convergence criteria for Se and W-Se
 #   The sequence of criteria determines the evaluation sequence
 #   RMSD_COHESIVE_SE2: RMSD < 0.02A; |COHESIVE ENERGY DIFFERENCE| < 0.1 eV/atom
 #   DISSOCIATION: |ENERGY DIFFERENCE| < 0.2
+
+#   V. Criteria according to Henry's force field parameters
+#   [ Convergence Criteria Se ]
+#   RMSD_COHESIVE_SE2 0.02 0.1
+#   DISSOCIATION_SE2 0.2
+#   RMSD_COHESIVE_SE3 0.05 0.25
+#   TRANSITION_PATH_SE3 0.4
+#   RMSD_COHESIVE_SE6 0.1 0.05
+#   RMSD_COHESIVE_SE8_RING 0.1 0.05
+#   RMSD_COHESIVE_SE8_HELIX 0.05 0.06
+#   RMSD_COHESIVE_SE8_LADDER 0.6 0.2
+#   MD_SE6_LOWT 0.3
+#   MD_SE6_HIGHT 0.7
+#   MD_SE8_RING_LOWT 0.6
+#   MD_SE8_RING_HIGHT 0.8
+#   [ END ]
+
+#   [ Convergence Criteria W Se ]
+#   RMSD_COHESIVE_WSE2 0.07 1.0
+#   EOS_WSE2 0.007
+#   PHONON_FREQUENCIES -0.3
+#   PHONON_GAMMA_POINT 0.4
+#   PHONON_BAND_GAP 0.2
+#   PHONON_AVE_ACOUSTIC 0.2
+#   PHONON_AVE_OPTICAL 0.4
+#   MD_WSE2_LOWT 0.5
+#   [ END ]
+
+#   Before running any optimization, check:
+#   1. Line 58, which specifies if it is a single-element or two-elements
+#      optimization.
+#   2. Optimized parameters
+#   3. Parameters to included in optimization or to be excluded (by setting
+#      the upper and lower range to be the same)
 
 [ Element W Se ]
 
@@ -31,19 +64,19 @@
 1 0.349062129091 0 1.19864625442 1.06060163186 -0.0396671926082 1 1 1.95864203232 880.038350037 3.41105925109 0.376880167844 2.93792248396 4929.6960118
 
 [ FF Parameters Range Se ]
-gamma 0 100
+gamma 0 10
 lambda3 0 1
 c 0 10
 d 0 10
 costheta0 -5 5
 n 0 1
 beta 0 1
-lambda2 0 5
+lambda2 0 3
 B 0 1000
 R 2.82 3.8
 D 0 1
-lambda1 0 15
-A 0 5000
+lambda1 3 6
+A 1000 5000
 [ END ]
 
 [ FF Parameters Range W Se ]
@@ -68,12 +101,12 @@ POP_SIZE 1000
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
-FREQ 20
+FREQ 50
 [ END ]
 
 [ Parameters for GA Work Flow W Se ]
 RANDOM_SEED 42
-POP_SIZE 200
+POP_SIZE 1000
 MAX_GEN 100
 CXPB 0.7
 MUTPB 0.3
@@ -84,20 +117,12 @@ FREQ 20
 RMSD_COHESIVE_SE2 0.02 0.1
 DISSOCIATION_SE2 0.2
 RMSD_COHESIVE_SE3 0.05 0.25
-TRANSITION_PATH_SE3 0.4
-RMSD_COHESIVE_SE6 0.1 0.05
-RMSD_COHESIVE_SE8_RING 0.1 0.05
-RMSD_COHESIVE_SE8_HELIX 0.05 0.06
-RMSD_COHESIVE_SE8_LADDER 0.6 0.2
-MD_SE6_LOWT 0.3
-MD_SE6_HIGHT 0.7
-MD_SE8_RING_LOWT 0.6
-MD_SE8_RING_HIGHT 0.8
+TRANSITION_PATH_SE3 0.2
 [ END ]
 
 [ Convergence Criteria W Se ]
-RMSD_COHESIVE_WSE2 0.02 1.0
-EOS_WSE2 0.005
+RMSD_COHESIVE_WSE2 0.07 1.0
+EOS_WSE2 0.007
 PHONON_FREQUENCIES -0.3
 PHONON_GAMMA_POINT 0.4
 PHONON_BAND_GAP 0.2
