@@ -94,6 +94,7 @@ def calculate_sse_proceed_phonon(path_tmp, job_id, eval_label, training_data, cr
     if eval_label == 'PHONON_FREQUENCIES':
         negative_frequency = predictions[:,4:][predictions[:,4:] < 0]
         sse = np.sum(np.square(negative_frequency))
+        sse = min(sse_max, sse)
         #print(eval_label, ', sse: ', sse, np.all(predictions[:,4:] >= criteria[eval_label][0]))
         return sse, np.all(predictions[:,4:] >= criteria[eval_label][0])
     elif eval_label == 'PHONON_GAMMA_POINT':
@@ -101,6 +102,7 @@ def calculate_sse_proceed_phonon(path_tmp, job_id, eval_label, training_data, cr
         abs_error = np.absolute(gamma_point_frequency -
                                 training_data[eval_label][(0,-1), 3:])
         sse = np.sum(np.square(abs_error))
+        sse = min(sse_max, sse)
         #print(eval_label, ', sse: ', sse, np.all(abs_error < criteria[eval_label][0]))
         return sse, np.all(abs_error < criteria[eval_label][0])
     elif eval_label == 'PHONON_BAND_GAP':
@@ -109,18 +111,21 @@ def calculate_sse_proceed_phonon(path_tmp, job_id, eval_label, training_data, cr
                           np.amax(training_data[eval_label][:,3:6])
         abs_error = np.absolute(band_gap - band_gap_target)
         sse = np.square(abs_error)
+        sse = min(sse_max, sse)
         #print(eval_label, ', abs_error: ', abs_error, abs_error < criteria[eval_label][0])
         return sse, abs_error < criteria[eval_label][0]
     elif eval_label == 'PHONON_AVE_ACOUSTIC':
         abs_error = np.absolute(predictions[:,4:7] - training_data[eval_label][:,3:6])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
+        sse = min(sse_max, sse)
         #print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
     elif eval_label == 'PHONON_AVE_OPTICAL':
         abs_error = np.absolute(predictions[:,7:] - training_data[eval_label][:,6:])
         mae = np.mean(abs_error)
         sse = np.sum(np.square(abs_error))
+        sse = min(sse_max, sse)
         #print(eval_label, ', mae: ', mae, mae < criteria[eval_label][0])
         return sse, mae < criteria[eval_label][0]
 
