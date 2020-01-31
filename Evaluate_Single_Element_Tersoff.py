@@ -105,7 +105,7 @@ def calculate_sse_proceed(path_tmp, job_id, eval_label, training_data, criteria)
             else:
                 return sse, False
         elif 'TRANSITION_PATH' in eval_label:
-            if max_abs_error < criteria[eval_label][0]:
+            if mae < criteria[eval_label][0]:
                 return sse, True
             else:
                 return sse, False
